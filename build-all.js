@@ -2,11 +2,11 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🚀 开始构建前端和后台...');
+console.log('🚀 开始构建前端、后端和后台...');
 
-// 1. 后端：生成 Prisma Client
-console.log('\n📦 生成 Prisma Client...');
-execSync('cd backend && npm install && npx prisma generate', { stdio: 'inherit' });
+// 1. 后端：安装依赖、生成 Prisma Client 并编译
+console.log('\n📦 生成 Prisma Client 并编译后端...');
+execSync('cd backend && npm install && npx prisma generate && npm run build', { stdio: 'inherit' });
 
 // 2. 前端：构建用户端
 console.log('\n🎨 构建用户前端...');

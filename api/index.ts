@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-import routes from '../backend/src/routes'
+import routes from '../backend/dist/routes'
 
 // 创建简化的Express应用用于Vercel Serverless
 const app = express()
