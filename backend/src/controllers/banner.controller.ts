@@ -6,21 +6,12 @@ const prisma = new PrismaClient()
 /**
  * 获取Banner列表
  */
-export const getBanners = async (req: Request, res: Response) => {
+export const getBanners = async (_req: Request, res: Response) => {
   try {
-    const { position } = req.query
-
-    const where: any = {
-      status: 'ACTIVE'
-    }
-
-    // 如果指定了位置，则筛选
-    if (position) {
-      where.position = position
-    }
-
     const banners = await prisma.banner.findMany({
-      where,
+      where: {
+        status: 'ACTIVE'
+      },
       orderBy: {
         sort: 'asc'
       },
@@ -29,7 +20,6 @@ export const getBanners = async (req: Request, res: Response) => {
         title: true,
         image: true,
         link: true,
-        position: true,
         sort: true
       }
     })
