@@ -1,0 +1,87 @@
+# ==========================================
+# 你的 Supabase 配置信息
+# ==========================================
+
+完整的数据库连接字符串：
+postgresql://postgres:SpoDa7qk1Y0DIfvU@db.xidbrgszgwrvqrpckjkw.supabase.co:5432/postgres
+
+# ==========================================
+# 配置步骤（2种方式）
+# ==========================================
+
+## 方式一：运行自动配置脚本（推荐）
+1. 双击运行：setup-supabase.bat
+2. 按提示，粘贴上面的完整连接字符串
+3. 脚本会自动完成所有配置
+
+## 方式二：手动配置
+1. 在 backend 文件夹创建 .env 文件
+2. 复制以下内容到 .env 文件：
+
+---复制下面的内容---
+
+# Supabase PostgreSQL 配置
+NODE_ENV=development
+PORT=3000
+APP_URL=http://localhost:3000
+
+# Supabase 数据库
+DATABASE_URL=postgresql://postgres:SpoDa7qk1Y0DIfvU@db.xidbrgszgwrvqrpckjkw.supabase.co:5432/postgres
+
+# JWT配置
+JWT_SECRET=dev-secret-key-change-in-production-2024
+JWT_EXPIRES_IN=7d
+REFRESH_TOKEN_SECRET=dev-refresh-secret-key-2024
+REFRESH_TOKEN_EXPIRES_IN=30d
+
+# Redis (可选)
+REDIS_URL=redis://localhost:6379
+
+# 文件上传
+UPLOAD_DIR=./uploads
+MAX_FILE_SIZE=10485760
+
+---复制结束---
+
+3. 保存文件为：backend\.env
+
+# ==========================================
+# 下一步操作
+# ==========================================
+
+配置完成后，在项目根目录运行：
+
+cd backend
+npm install
+npx prisma generate
+npx prisma db push
+npm run dev
+
+# ==========================================
+# Vercel 环境变量配置
+# ==========================================
+
+登录 https://vercel.com/dashboard
+选择项目：shop-app-ve
+Settings → Environment Variables
+添加：
+
+Name: DATABASE_URL
+Value: postgresql://postgres:SpoDa7qk1Y0DIfvU@db.xidbrgszgwrvqrpckjkw.supabase.co:5432/postgres
+Environments: Production, Preview, Development
+
+保存后重新部署
+
+# ==========================================
+# 测试连接
+# ==========================================
+
+# 查看数据库
+cd backend
+npx prisma studio
+# 浏览器打开 http://localhost:5555
+
+# 测试API
+cd backend
+npm run dev
+# 后端运行在 http://localhost:3000
