@@ -1,86 +1,601 @@
-// 简化版 Prisma Schema - 只包含核心字段
+// Prisma Schema for 零售电商App
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// 枚举类型
-enum Status {
-    ACTIVE
-    INACTIVE
+// ==================== 用户模块 ====================
+
+// 用户表
+model User {
+  id          String      @id @default(uuid())
+  phone       String      @unique @db.VarChar(11)
+  password    String      @db.VarChar(255)
+  nickname    String      @default("新用户") @db.VarChar(50)
+  avatar      String?     @db.VarChar(500)
+  email       String?     @unique @db.VarChar(100)
+  gender      Gender      @default(UNKNOWN)
+  birthday    DateTime?
+  memberLevel MemberLevel @default(NORMAL)
+  points      Int         @default(0)
+  growthValue Int         @default(0)
+  balance     Decimal     @default(0) @db.Decimal(10, 2)
+  status      UserStatus  @default(ACTIVE)
+  lastLoginAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // 关联
+  addresses      Address[]
+  orders         Order[]
+  cartItems      CartItem[]
+  favorites      Favorite[]
+  browseHistory  BrowseHistory[]
+  posts          Post[]
+  comments       Comment[]
+  postLikes      PostLike[]
+  coupons        UserCoupon[]
+  refunds        Refund[]
+  followers      Follow[]        @relation("UserFollowers") // 我的粉丝
+  followings     Follow[]        @relation("UserFollowings") // 我关注的人
+  commentReplies Comment[]       @relation("CommentReplyTo") // 被回复的评论
+
+  @@index([phone])
+  @@index([memberLevel])
+  @@map("users")
 }
 
-// 分类表
+enum Gender {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum MemberLevel {
+  NORMAL
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+// 收货地址表
+model Address {
+  id           String   @id @default(uuid())
+  userId       String
+  receiverName String   @db.VarChar(50)
+  phone        String   @db.VarChar(11)
+  province     String   @db.VarChar(50)
+  city         String   @db.VarChar(50)
+  district     String   @db.VarChar(50)
+  detail       String   @db.VarChar(200)
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // 关联
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+// 管理员表
+model Admin {
+  id          String     @id @default(uuid())
+  username    String     @unique @db.VarChar(50)
+  password    String     @db.VarChar(255)
+  nickname    String     @db.VarChar(50)
+  avatar      String?    @db.VarChar(500)
+  role        AdminRole  @default(OPERATOR)
+  status      UserStatus @default(ACTIVE)
+  lastLoginAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([username])
+  @@map("admins")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  OPERATOR
+}
+
+// ==================== 商品模块 ====================
+
+// 商品分类表
 model Category {
-    id        String   @id @default(uuid())
-    name      String   @db.VarChar(50)
-    icon      String?  @db.VarChar(100)
-    image     String?  @db.VarChar(500)
-    parentId  String?
-    sort      Int      @default(0)
-    status    Status   @default(ACTIVE)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(50)
+  icon      String?  @db.VarChar(100)
+  parentId  String?
+  sort      Int      @default(0)
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@map("categories")
+  // 关联
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+
+  @@index([parentId])
+  @@index([status])
+  @@map("categories")
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
 }
 
 // 商品表
 model Product {
-    id            String   @id @default(uuid())
-    categoryId    String
-    title         String   @db.VarChar(200)
-    description   String?  @db.Text
-    mainImage     String   @db.VarChar(500)
-    images        String[]
-    video         String?  @db.VarChar(500)
-    detail        String?  @db.Text
-    price         Decimal  @db.Decimal(10, 2)
-    originalPrice Decimal  @db.Decimal(10, 2)
-    stock         Int      @default(0)
-    sales         Int      @default(0)
-    views         Int      @default(0)
-    tags          String[]
-    params        Json?
-    status        Status   @default(ACTIVE)
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+  id            String   @id @default(uuid())
+  categoryId    String
+  title         String   @db.VarChar(200)
+  description   String?  @db.Text
+  mainImage     String   @db.VarChar(500)
+  images        String[] // 轮播图
+  video         String?  @db.VarChar(500)
+  detail        String?  @db.Text
+  price         Decimal  @db.Decimal(10, 2)
+  originalPrice Decimal  @db.Decimal(10, 2)
+  stock         Int      @default(0)
+  sales         Int      @default(0)
+  views         Int      @default(0)
+  tags          String[] // 标签数组
+  params        Json? // 商品参数
+  status        Status   @default(ACTIVE)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-    @@map("products")
+  // 关联
+  category      Category        @relation(fields: [categoryId], references: [id])
+  skus          Sku[]
+  orderItems    OrderItem[]
+  cartItems     CartItem[]
+  favorites     Favorite[]
+  browseHistory BrowseHistory[]
+  postProducts  PostProduct[]
+  rankings      Ranking[]
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([price])
+  @@index([sales])
+  @@index([title])
+  @@map("products")
+}
+
+// SKU表
+model Sku {
+  id        String   @id @default(uuid())
+  productId String
+  specs     Json // 规格属性 {color: "白色", size: "42"}
+  price     Decimal  @db.Decimal(10, 2)
+  stock     Int      @default(0)
+  image     String?  @db.VarChar(500)
+  sku       String   @unique @db.VarChar(100) // SKU编码
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@index([sku])
+  @@map("skus")
+}
+
+// ==================== 订单模块 ====================
+
+// 订单表
+model Order {
+  id             String         @id @default(uuid())
+  orderNo        String         @unique @db.VarChar(32)
+  userId         String
+  addressId      String
+  status         OrderStatus    @default(PENDING_PAYMENT)
+  totalAmount    Decimal        @db.Decimal(10, 2)
+  discountAmount Decimal        @default(0) @db.Decimal(10, 2)
+  shippingFee    Decimal        @default(0) @db.Decimal(10, 2)
+  actualAmount   Decimal        @db.Decimal(10, 2)
+  buyerMessage   String?        @db.VarChar(500)
+  paymentMethod  PaymentMethod?
+  paymentTime    DateTime?
+  shippingMethod String?        @db.VarChar(50)
+  shippingNo     String?        @db.VarChar(100)
+  shippingTime   DateTime?
+  confirmTime    DateTime?
+  closeTime      DateTime?
+  closeReason    String?        @db.VarChar(200)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  // 关联
+  user    User        @relation(fields: [userId], references: [id])
+  address Address     @relation(fields: [addressId], references: [id])
+  items   OrderItem[]
+  refund  Refund?
+
+  @@index([userId])
+  @@index([orderNo])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT // 待付款
+  PENDING_SHIP // 待发货
+  SHIPPED // 已发货
+  COMPLETED // 已完成
+  CLOSED // 已关闭
+  REFUNDING // 退款中
+}
+
+enum PaymentMethod {
+  WECHAT
+  ALIPAY
+  BALANCE
+}
+
+// 订单项表
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+  productId    String
+  skuId        String?
+  productTitle String   @db.VarChar(200)
+  productImage String   @db.VarChar(500)
+  skuSpecs     Json?
+  price        Decimal  @db.Decimal(10, 2)
+  quantity     Int
+  totalAmount  Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // 关联
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+  sku     Sku?    @relation(fields: [skuId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// 退款表
+model Refund {
+  id            String       @id @default(uuid())
+  refundNo      String       @unique @db.VarChar(32)
+  orderId       String       @unique
+  userId        String
+  refundAmount  Decimal      @db.Decimal(10, 2)
+  refundReason  String       @db.VarChar(500)
+  refundType    RefundType
+  status        RefundStatus @default(PENDING)
+  rejectReason  String?      @db.VarChar(500)
+  processTime   DateTime?
+  completedTime DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // 关联
+  order Order @relation(fields: [orderId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([refundNo])
+  @@map("refunds")
+}
+
+enum RefundType {
+  REFUND_ONLY // 仅退款
+  RETURN_REFUND // 退货退款
+}
+
+enum RefundStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+// ==================== 购物车模块 ====================
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  selected  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("cart_items")
+}
+
+// ==================== 内容模块 ====================
+
+// 帖子表
+model Post {
+  id           String     @id @default(uuid())
+  userId       String
+  type         PostType
+  title        String     @db.VarChar(200)
+  content      String     @db.Text
+  images       String[]
+  video        String?    @db.VarChar(500)
+  viewCount    Int        @default(0)
+  likeCount    Int        @default(0)
+  commentCount Int        @default(0)
+  status       PostStatus @default(PENDING)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // 关联
+  user     User          @relation(fields: [userId], references: [id])
+  comments Comment[]
+  likes    PostLike[]
+  products PostProduct[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([title])
+  @@map("posts")
+}
+
+enum PostType {
+  IMAGE
+  VIDEO
+}
+
+enum PostStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// 评论表
+model Comment {
+  id            String   @id @default(uuid())
+  postId        String
+  userId        String
+  content       String   @db.VarChar(500)
+  parentId      String? // 父评论ID，用于回复
+  replyToUserId String? // 被回复的用户ID
+  likeCount     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // 关联
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id])
+  parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[] @relation("CommentReplies")
+  replyToUser User?     @relation("CommentReplyTo", fields: [replyToUserId], references: [id])
+
+  @@index([postId])
+  @@index([userId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+// 帖子点赞表
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // 关联
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+  @@map("post_likes")
+}
+
+// 帖子商品关联表
+model PostProduct {
+  id        String   @id @default(uuid())
+  postId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  // 关联
+  post    Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, productId])
+  @@index([postId])
+  @@map("post_products")
+}
+
+// ==================== 营销模块 ====================
+
+// 优惠券表
+model Coupon {
+  id             String     @id @default(uuid())
+  name           String     @db.VarChar(100)
+  type           CouponType
+  discountAmount Decimal    @db.Decimal(10, 2)
+  minAmount      Decimal    @default(0) @db.Decimal(10, 2)
+  totalCount     Int
+  receivedCount  Int        @default(0)
+  startTime      DateTime
+  endTime        DateTime
+  status         Status     @default(ACTIVE)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  // 关联
+  userCoupons UserCoupon[]
+
+  @@index([status])
+  @@map("coupons")
+}
+
+enum CouponType {
+  DISCOUNT // 满减
+  PERCENTAGE // 折扣
+}
+
+// 用户优惠券表
+model UserCoupon {
+  id        String           @id @default(uuid())
+  userId    String
+  couponId  String
+  status    UserCouponStatus @default(UNUSED)
+  usedAt    DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // 关联
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon Coupon @relation(fields: [couponId], references: [id])
+
+  @@index([userId])
+  @@index([couponId])
+  @@map("user_coupons")
+}
+
+enum UserCouponStatus {
+  UNUSED
+  USED
+  EXPIRED
 }
 
 // 轮播图表
 model Banner {
-    id        String   @id @default(uuid())
-    title     String   @db.VarChar(100)
-    image     String   @db.VarChar(500)
-    link      String?  @db.VarChar(500)
-    sort      Int      @default(0)
-    status    Status   @default(ACTIVE)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String         @id @default(uuid())
+  title     String         @db.VarChar(100)
+  image     String         @db.VarChar(500)
+  link      String?        @db.VarChar(500)
+  position  BannerPosition
+  sort      Int            @default(0)
+  status    Status         @default(ACTIVE)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
-    @@map("banners")
+  @@index([position])
+  @@index([status])
+  @@map("banners")
 }
 
-// 优惠券表
-model Coupon {
-    id             String   @id @default(uuid())
-    name           String   @db.VarChar(100)
-    type           String   @db.VarChar(20)
-    discountAmount Decimal  @db.Decimal(10, 2)
-    minAmount      Decimal  @db.Decimal(10, 2)
-    totalCount     Int
-    receivedCount  Int      @default(0)
-    startTime      DateTime
-    endTime        DateTime
-    status         Status   @default(ACTIVE)
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
+enum BannerPosition {
+  HOME
+  DISCOVER
+  PROFILE
+}
 
-    @@map("coupons")
+// ==================== 排行榜模块 ====================
+
+// 排行榜表
+model Ranking {
+  id          String      @id @default(uuid())
+  productId   String
+  type        RankingType // 排行榜类型
+  rank        Int // 排名
+  score       Float // 评分或权重
+  trend       TrendType   @default(UNCHANGED) // 涨跌趋势
+  lastUpdated DateTime    @default(now()) // 最后更新时间
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // 关联
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, type])
+  @@index([type, rank])
+  @@map("rankings")
+}
+
+enum RankingType {
+  HOT // 热销榜
+  RATING // 好评榜
+  NEW // 新品榜
+  FAVORITE // 收藏榜
+}
+
+enum TrendType {
+  UP // 上升
+  DOWN // 下降
+  UNCHANGED // 不变
+}
+
+// ==================== 其他模块 ====================
+
+// 收藏表
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  // 关联
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("favorites")
+}
+
+// 浏览历史表
+model BrowseHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  // 关联
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("browse_history")
+}
+
+// 关注关系表
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String // 关注者ID
+  followingId String // 被关注者ID
+  createdAt   DateTime @default(now())
+
+  // 关联
+  follower  User @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowings", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
 }
