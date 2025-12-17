@@ -92,11 +92,11 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[0].id,
           title: '时尚运动鞋 透气舒适跑步鞋',
           description: '轻便透气，舒适缓震，适合各种运动场景',
-          mainImage: 'https://picsum.photos/400/400?random=1',
+          mainImage: 'https://source.unsplash.com/400x400/?sneakers,running-shoes',
           images: [
-            'https://picsum.photos/400/400?random=1',
-            'https://picsum.photos/400/400?random=2',
-            'https://picsum.photos/400/400?random=3'
+            'https://source.unsplash.com/400x400/?sneakers,running-shoes',
+            'https://source.unsplash.com/400x400/?athletic-shoes,sports',
+            'https://source.unsplash.com/400x400/?nike-shoes,footwear'
           ],
           price: 599,
           originalPrice: 899,
@@ -115,10 +115,10 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[2].id,
           title: '水润保湿精华液 深层补水',
           description: '深层补水保湿，提亮肤色，改善肌肤干燥',
-          mainImage: 'https://picsum.photos/400/400?random=4',
+          mainImage: 'https://source.unsplash.com/400x400/?skincare,serum,beauty',
           images: [
-            'https://picsum.photos/400/400?random=4',
-            'https://picsum.photos/400/400?random=5'
+            'https://source.unsplash.com/400x400/?skincare,serum,beauty',
+            'https://source.unsplash.com/400x400/?cosmetics,skincare-products'
           ],
           price: 299,
           originalPrice: 499,
@@ -137,11 +137,11 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[3].id,
           title: '无线蓝牙耳机 降噪入耳式',
           description: '主动降噪，长续航，高音质',
-          mainImage: 'https://picsum.photos/400/400?random=6',
+          mainImage: 'https://source.unsplash.com/400x400/?wireless-earbuds,headphones',
           images: [
-            'https://picsum.photos/400/400?random=6',
-            'https://picsum.photos/400/400?random=7',
-            'https://picsum.photos/400/400?random=8'
+            'https://source.unsplash.com/400x400/?wireless-earbuds,headphones',
+            'https://source.unsplash.com/400x400/?airpods,bluetooth-headphones',
+            'https://source.unsplash.com/400x400/?audio,earphones'
           ],
           price: 199,
           originalPrice: 399,
@@ -160,10 +160,10 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[1].id,
           title: '户外登山包 大容量防水背包',
           description: '50L大容量，防水防撕裂，舒适背负系统',
-          mainImage: 'https://picsum.photos/400/400?random=9',
+          mainImage: 'https://source.unsplash.com/400x400/?hiking-backpack,outdoor',
           images: [
-            'https://picsum.photos/400/400?random=9',
-            'https://picsum.photos/400/400?random=10'
+            'https://source.unsplash.com/400x400/?hiking-backpack,outdoor',
+            'https://source.unsplash.com/400x400/?backpack,camping-gear'
           ],
           price: 399,
           originalPrice: 599,
@@ -182,10 +182,10 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[4].id,
           title: '新鲜水果礼盒 进口车厘子',
           description: '智利进口，JJ级大果，新鲜直达',
-          mainImage: 'https://picsum.photos/400/400?random=11',
+          mainImage: 'https://source.unsplash.com/400x400/?cherries,fresh-fruit',
           images: [
-            'https://picsum.photos/400/400?random=11',
-            'https://picsum.photos/400/400?random=12'
+            'https://source.unsplash.com/400x400/?cherries,fresh-fruit',
+            'https://source.unsplash.com/400x400/?fruit-box,berries'
           ],
           price: 199,
           originalPrice: 299,
@@ -234,8 +234,8 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           title: '春季穿搭分享',
           content: '今天分享一套春季穿搭，清新又舒适～',
           images: [
-            'https://picsum.photos/400/600?random=20',
-            'https://picsum.photos/400/600?random=21'
+            'https://source.unsplash.com/400x600/?spring-fashion,outfit',
+            'https://source.unsplash.com/400x600/?casual-wear,style'
           ],
           viewCount: 5000,
           likeCount: 230,
@@ -249,7 +249,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           type: 'IMAGE',
           title: '好物推荐',
           content: '这款精华液真的超好用！用了一周皮肤明显变好了',
-          images: ['https://picsum.photos/400/600?random=22'],
+          images: ['https://source.unsplash.com/400x600/?skincare-routine,beauty-products'],
           viewCount: 8000,
           likeCount: 450,
           commentCount: 89,
@@ -270,7 +270,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
       prisma.banner.create({
         data: {
           title: '春季新品大促',
-          image: 'https://picsum.photos/800/400?random=10',
+          image: 'https://source.unsplash.com/800x400/?shopping,fashion,sale',
           link: '/products',
           position: 'HOME',
           sort: 1
@@ -279,7 +279,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
       prisma.banner.create({
         data: {
           title: '限时秒杀',
-          image: 'https://picsum.photos/800/400?random=11',
+          image: 'https://source.unsplash.com/800x400/?ecommerce,deals,promotion',
           link: '/flash-sale',
           position: 'HOME',
           sort: 2
@@ -288,7 +288,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
       prisma.banner.create({
         data: {
           title: '会员专享',
-          image: 'https://picsum.photos/800/400?random=12',
+          image: 'https://source.unsplash.com/800x400/?luxury,vip,premium',
           link: '/vip',
           position: 'HOME',
           sort: 3
