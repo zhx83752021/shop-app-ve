@@ -8,16 +8,6 @@
       "destination": "/api"
     }
   ],
-  "routes": [
-    {
-      "src": "/admin/(.*)",
-      "dest": "/admin/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
   "functions": {
     "api/index.ts": {
       "memory": 1024,
