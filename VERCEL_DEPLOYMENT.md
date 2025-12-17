@@ -15,19 +15,30 @@
 - **Build Command**: `npm run vercel-build`（自动配置）
 - **Output Directory**: `frontend/dist`
 - **Install Command**: `npm install`
-#### 环境变量
-在 Vercel 项目设置的 "Environment Variables" 中添加：
+#### 环境变量（重要）
+在 Vercel 项目设置的 "Environment Variables" 中添加以下**必需**的环境变量：
+
 ```bash
-# 前端API配置（已自动配置为相对路径，无需手动设置）
-VITE_API_BASE_URL=/api
-# 数据库配置（如使用Vercel Postgres）
+# 数据库配置（必需）
 DATABASE_URL=postgresql://user:password@host:port/database
-# JWT配置
-JWT_SECRET=your-secret-key-here
+
+# JWT 配置（必需 - 用于用户认证）
+JWT_SECRET=your-jwt-secret-key-at-least-32-characters-long
 JWT_EXPIRES_IN=7d
-# 其他配置
+REFRESH_TOKEN_SECRET=your-refresh-token-secret-at-least-32-characters
+REFRESH_TOKEN_EXPIRES_IN=30d
+
+# 数据库初始化密钥（必需 - 用于执行种子数据）
+SEED_SECRET_KEY=your-seed-secret-key-change-this
+
+# 应用配置
 NODE_ENV=production
 ```
+
+**重要提示**：
+- 所有 `SECRET` 相关的值必须使用强密码（建议 32 位以上随机字符串）
+- 不要在代码中硬编码这些密钥
+- 生产环境必须使用不同的密钥值
 **注意**: 前端已配置使用相对路径 `/api`，无需额外配置 API 地址
 ### 4. 部署
 点击 "Deploy" 按钮，等待构建完成
