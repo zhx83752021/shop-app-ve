@@ -92,11 +92,11 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[0].id,
           title: '时尚运动鞋 透气舒适跑步鞋',
           description: '轻便透气，舒适缓震，适合各种运动场景',
-          mainImage: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
+          mainImage: 'https://via.placeholder.com/400x400/FFFFFF/000000?text=Nike+Running+Shoes',
           images: [
-            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=400&h=400&fit=crop'
+            'https://via.placeholder.com/400x400/FFFFFF/000000?text=Nike+Running+Shoes',
+            'https://via.placeholder.com/400x400/F8F8F8/333333?text=Side+View',
+            'https://via.placeholder.com/400x400/F5F5F5/555555?text=Detail+View'
           ],
           price: 599,
           originalPrice: 899,
@@ -115,10 +115,10 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[2].id,
           title: '水润保湿精华液 深层补水',
           description: '深层补水保湿，提亮肤色，改善肌肤干燥',
-          mainImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop',
+          mainImage: 'https://via.placeholder.com/400x400/FFFFFF/FF69B4?text=SK-II+Serum',
           images: [
-            'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1556228852-80f3db2e70e0?w=400&h=400&fit=crop'
+            'https://via.placeholder.com/400x400/FFFFFF/FF69B4?text=SK-II+Serum',
+            'https://via.placeholder.com/400x400/FFF5F7/FF1493?text=Product+Details'
           ],
           price: 299,
           originalPrice: 499,
@@ -137,11 +137,11 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[3].id,
           title: '无线蓝牙耳机 降噪入耳式',
           description: '主动降噪，长续航，高音质',
-          mainImage: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=400&fit=crop',
+          mainImage: 'https://via.placeholder.com/400x400/FFFFFF/000000?text=Wireless+Earbuds',
           images: [
-            'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=400&h=400&fit=crop'
+            'https://via.placeholder.com/400x400/FFFFFF/000000?text=Wireless+Earbuds',
+            'https://via.placeholder.com/400x400/F8F8F8/1A1A1A?text=With+Case',
+            'https://via.placeholder.com/400x400/F5F5F5/2C2C2C?text=Close+Up'
           ],
           price: 199,
           originalPrice: 399,
@@ -160,10 +160,10 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[1].id,
           title: '户外登山包 大容量防水背包',
           description: '50L大容量，防水防撕裂，舒适背负系统',
-          mainImage: 'https://images.unsplash.com/photo-1622260614927-189e8dc4f81f?w=400&h=400&fit=crop',
+          mainImage: 'https://via.placeholder.com/400x400/FFFFFF/228B22?text=Hiking+Backpack+50L',
           images: [
-            'https://images.unsplash.com/photo-1622260614927-189e8dc4f81f?w=400&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1560259324-80261e2371f3?w=400&h=400&fit=crop'
+            'https://via.placeholder.com/400x400/FFFFFF/228B22?text=Hiking+Backpack+50L',
+            'https://via.placeholder.com/400x400/F8F8F8/2E8B57?text=Back+View'
           ],
           price: 399,
           originalPrice: 599,
@@ -182,10 +182,10 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[4].id,
           title: '新鲜水果礼盒 进口车厘子',
           description: '智利进口，JJ级大果，新鲜直达',
-          mainImage: 'https://images.unsplash.com/photo-1528821128474-27f963b062bf?w=400&h=400&fit=crop',
+          mainImage: 'https://via.placeholder.com/400x400/FFFFFF/DC143C?text=Fresh+Cherries+2kg',
           images: [
-            'https://images.unsplash.com/photo-1528821128474-27f963b062bf?w=400&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1464454709131-ffd692591ee5?w=400&h=400&fit=crop'
+            'https://via.placeholder.com/400x400/FFFFFF/DC143C?text=Fresh+Cherries+2kg',
+            'https://via.placeholder.com/400x400/FFF5F5/B22222?text=Premium+Quality'
           ],
           price: 199,
           originalPrice: 299,
@@ -270,7 +270,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
       prisma.banner.create({
         data: {
           title: '春季新品大促',
-          image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=400&fit=crop',
+          image: 'https://via.placeholder.com/800x400/FF6B6B/FFFFFF?text=Spring+Sale+-+Up+to+50%+OFF',
           link: '/products',
           position: 'HOME',
           sort: 1
@@ -279,7 +279,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
       prisma.banner.create({
         data: {
           title: '限时秒杀',
-          image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=800&h=400&fit=crop',
+          image: 'https://via.placeholder.com/800x400/4ECDC4/FFFFFF?text=Flash+Sale+-+Limited+Time',
           link: '/flash-sale',
           position: 'HOME',
           sort: 2
@@ -288,7 +288,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
       prisma.banner.create({
         data: {
           title: '会员专享',
-          image: 'https://images.unsplash.com/photo-1556906781-9cba4a871268?w=800&h=400&fit=crop',
+          image: 'https://via.placeholder.com/800x400/FFD93D/333333?text=VIP+Exclusive+Benefits',
           link: '/vip',
           position: 'HOME',
           sort: 3

@@ -86,7 +86,7 @@ const liveStreams = ref<LiveStream[]>([
   {
     id: '1',
     title: '【限时抢购】Apple iPhone 15 Pro 超值优惠',
-    cover: 'https://placehold.co/400x300/667eea/FFF?text=iPhone+15+Pro',
+    cover: 'https://images.unsplash.com/photo-1592286927505-c5d39f747cc6?w=400&h=300&fit=crop',
     anchorName: '科技数码精选',
     anchorAvatar: 'https://ui-avatars.com/api/?name=Tech&background=667eea&color=fff',
     viewers: 12580,
@@ -95,7 +95,7 @@ const liveStreams = ref<LiveStream[]>([
   {
     id: '2',
     title: '美妆护肤专场 大牌好物直降',
-    cover: 'https://placehold.co/400x300/f093fb/FFF?text=Beauty',
+    cover: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=300&fit=crop',
     anchorName: '美妆小姐姐',
     anchorAvatar: 'https://ui-avatars.com/api/?name=Beauty&background=f093fb&color=fff',
     viewers: 8763,
@@ -104,7 +104,7 @@ const liveStreams = ref<LiveStream[]>([
   {
     id: '3',
     title: 'Nike运动鞋专场 全场5折起',
-    cover: 'https://placehold.co/400x300/4ADE80/FFF?text=Nike+Shoes',
+    cover: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop',
     anchorName: '运动达人',
     anchorAvatar: 'https://ui-avatars.com/api/?name=Sports&background=4ADE80&color=fff',
     viewers: 15420,
@@ -113,7 +113,7 @@ const liveStreams = ref<LiveStream[]>([
   {
     id: '4',
     title: '家电节能补贴 爆款直降千元',
-    cover: 'https://placehold.co/400x300/3B9BFF/FFF?text=Home+Appliance',
+    cover: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
     anchorName: '家电小管家',
     anchorAvatar: 'https://ui-avatars.com/api/?name=Home&background=3B9BFF&color=fff',
     viewers: 6234,
@@ -122,7 +122,7 @@ const liveStreams = ref<LiveStream[]>([
   {
     id: '5',
     title: '食品生鲜 新鲜直达 限时秒杀',
-    cover: 'https://placehold.co/400x300/FFD93D/333?text=Fresh+Food',
+    cover: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop',
     anchorName: '生鲜小哥',
     anchorAvatar: 'https://ui-avatars.com/api/?name=Food&background=FFD93D&color=333',
     viewers: 9876,
@@ -131,7 +131,7 @@ const liveStreams = ref<LiveStream[]>([
   {
     id: '6',
     title: '母婴用品专场 品质好货',
-    cover: 'https://placehold.co/400x300/FB7185/FFF?text=Baby+Products',
+    cover: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&h=300&fit=crop',
     anchorName: '辣妈团长',
     anchorAvatar: 'https://ui-avatars.com/api/?name=Baby&background=FB7185&color=fff',
     viewers: 5678,
