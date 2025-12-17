@@ -9,6 +9,7 @@ import postRoutes from './post.routes'
 import couponRoutes from './coupon.routes'
 import rankingRoutes from './ranking.routes'
 import bannerRoutes from './banner.routes'
+import seedRoutes from './seed.routes'
 
 const router = Router()
 
@@ -44,6 +45,9 @@ router.use('/rankings', rankingRoutes)
 
 // 管理后台路由
 router.use('/admin', adminRoutes)
+
+// 数据库种子数据路由
+router.use('/seed', seedRoutes)
 
 // 健康检查
 router.get('/health', (_, res) => {
