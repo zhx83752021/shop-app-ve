@@ -228,9 +228,11 @@ onUnmounted(() => {
 <style scoped>
 .page {
   min-height: 100vh;
+  height: 100vh;
   background: #f5f5f5;
   padding-bottom: 80px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .header {
