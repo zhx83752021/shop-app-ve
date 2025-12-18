@@ -92,24 +92,19 @@
         </button>
       </div>
       <div class="flex gap-3 overflow-x-auto scrollbar-hide">
-        <template v-if="banners.length > 0">
-          <div v-for="i in 3" :key="i" class="flex-shrink-0 w-32">
-            <div class="relative">
-              <ImageWithFallback
-                :src="banners[i % banners.length].image"
-                :alt="`直播${i}`"
-                class-name="w-full h-40 object-cover rounded-xl"
-              />
-              <div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                <Video class="w-3 h-3" /> 直播中
-              </div>
+        <div v-for="(live, index) in liveStreams" :key="index" class="flex-shrink-0 w-32">
+          <div class="relative">
+            <ImageWithFallback
+              :src="live.cover"
+              :alt="live.title"
+              class-name="w-full h-40 object-cover rounded-xl"
+            />
+            <div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+              <Video class="w-3 h-3" /> 直播中
             </div>
-            <p class="text-sm mt-2 line-clamp-2">限时特惠活动</p>
-            <p class="text-xs text-gray-500">2.3万人观看</p>
           </div>
-        </template>
-        <div v-else class="text-center text-gray-400 py-8 w-full">
-          加载中...
+          <p class="text-sm mt-2 line-clamp-2">{{ live.title }}</p>
+          <p class="text-xs text-gray-500">{{ live.viewers }}人观看</p>
         </div>
       </div>
     </div>
@@ -232,6 +227,25 @@ const showSearchSuggestions = ref(false)
 const searchSuggestions = ref<string[]>([])
 let timer: number | null = null
 let suggestionTimer: number | null = null
+
+// 直播热卖数据
+const liveStreams = ref([
+  {
+    title: 'Apple iPhone 15 Pro 超值优惠',
+    cover: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=300&fit=crop',
+    viewers: '2.3万'
+  },
+  {
+    title: '美妆护肤专场 大牌好物',
+    cover: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=300&fit=crop',
+    viewers: '1.8万'
+  },
+  {
+    title: 'Nike运动鞋 全场5折起',
+    cover: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop',
+    viewers: '3.5万'
+  }
+])
 
 const quickActions: QuickAction[] = [
   { iconName: 'Zap', label: '每日秒杀', gradient: 'from-[#FF5A5F] to-[#FF5A5F]' },
