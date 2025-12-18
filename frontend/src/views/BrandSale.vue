@@ -304,23 +304,6 @@ onUnmounted(() => {
   transform: scale(0.95);
 }
 
-.brand-card.selected {
-  position: relative;
-}
-
-.brand-card.selected::after {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% + 8px);
-  height: calc(100% + 8px);
-  border: 2px solid #ff4b2b;
-  border-radius: 16px;
-  pointer-events: none;
-}
-
 .brand-card.selected .brand-logo {
   box-shadow: 0 4px 12px rgba(255, 75, 43, 0.4);
 }
