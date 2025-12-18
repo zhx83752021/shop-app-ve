@@ -27,6 +27,15 @@ const openService = () => {
   right: 16px;
   bottom: 80px;
   z-index: 999;
+  max-width: 448px; /* max-w-md = 28rem = 448px */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 448px) {
+  .floating-service {
+    right: calc(50% - 224px + 16px); /* 居中容器内偏右16px */
+  }
 }
 
 .service-btn {

@@ -110,25 +110,6 @@
         </button>
       </div>
     </div>
-
-    <!-- 客服入口强调 -->
-    <div class="mx-4 mb-6">
-      <button
-        @click="handleContactService"
-        class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl p-4 flex items-center justify-between shadow-lg active:opacity-90 transition-opacity"
-      >
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-            <Headphones class="w-6 h-6 text-white" />
-          </div>
-          <div class="text-left">
-            <h3 class="text-lg font-bold mb-1">7x24小时在线客服</h3>
-            <p class="text-sm text-white/80">有问题随时咨询我们</p>
-          </div>
-        </div>
-        <MessageCircle class="w-6 h-6 text-white" />
-      </button>
-    </div>
   </div>
 </template>
 
@@ -139,7 +120,6 @@ import {
   Package,
   Truck,
   CheckCircle,
-  MessageCircle,
   CreditCard,
   Tag,
   Heart,
@@ -255,11 +235,6 @@ const handleMenuClick = (item: MenuItem) => {
   } else {
     ElMessage.info(`${item.label}功能开发中`)
   }
-}
-
-// 联系客服
-const handleContactService = () => {
-  ElMessage.info('客服功能开发中')
 }
 
 const orderStatusItems = computed<OrderStatus[]>(() => [
