@@ -13,7 +13,7 @@
       <div
         v-for="(brand, index) in brands"
         :key="index"
-        class="brand-card"
+        :class="['brand-card', { 'selected': selectedBrand === brand.name }]"
         @click="filterByBrand(brand.name)"
       >
         <ImageWithFallback
@@ -29,13 +29,18 @@
     <!-- 闪购商品 -->
     <div class="section-title">
       <div class="title-line"></div>
-      <h2>品牌特惠</h2>
+      <h2>{{ selectedBrand ? `${selectedBrand} 品牌特惠` : '品牌特惠' }}</h2>
       <div class="title-line"></div>
     </div>
 
-    <div class="products-container">
+    <div v-if="filteredProducts.length === 0" class="empty-container">
+      <p class="empty-text">暂无该品牌商品</p>
+      <button @click="clearFilter" class="clear-filter-btn">查看全部商品</button>
+    </div>
+
+    <div v-else class="products-container">
       <div
-        v-for="product in products"
+        v-for="product in filteredProducts"
         :key="product.id"
         class="product-card"
       >
@@ -82,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { ArrowLeft } from 'lucide-vue-next';
 import { ElMessage } from 'element-plus';
 import ImageWithFallback from '@/components/ImageWithFallback.vue';
@@ -133,6 +138,8 @@ const brands = ref([
 ]);
 
 const products = ref<any[]>([]);
+const allProducts = ref<any[]>([]); // 保存所有商品
+const selectedBrand = ref<string>(''); // 当前选中的品牌
 const countdown = ref({
   hours: '02',
   minutes: '34',
@@ -149,7 +156,7 @@ const loadProducts = async () => {
       pageSize: 20
     });
 
-    products.value = response.items.map((item: any) => {
+    const productList = response.items.map((item: any) => {
       // 生成随机折扣
       const discountPercent = Math.floor(Math.random() * 50) + 30; // 30% - 80% 折扣
       const discount = `${discountPercent}%`;
@@ -168,6 +175,9 @@ const loadProducts = async () => {
         image: item.mainImage
       };
     });
+    
+    allProducts.value = productList;
+    products.value = productList;
   } catch (error) {
     console.error('加载品牌闪购数据失败:', error);
     ElMessage.error('加载失败，请稍后重试');
@@ -184,10 +194,27 @@ const addToCart = async (productId: string) => {
   }
 };
 
+// 计算属性：根据选中品牌筛选商品
+const filteredProducts = computed(() => {
+  if (!selectedBrand.value) {
+    return products.value;
+  }
+  return products.value.filter(product => product.brand === selectedBrand.value);
+});
+
 const filterByBrand = (brandName: string) => {
-  ElMessage.info(`筛选 ${brandName} 品牌商品`);
-  // 这里可以实现品牌筛选逻辑
-  // 例如：根据品牌名过滤products数组
+  if (selectedBrand.value === brandName) {
+    // 如果点击已选中的品牌，则取消筛选
+    selectedBrand.value = '';
+    ElMessage.info('已显示全部品牌商品');
+  } else {
+    selectedBrand.value = brandName;
+    ElMessage.success(`已筛选 ${brandName} 品牌商品`);
+  }
+};
+
+const clearFilter = () => {
+  selectedBrand.value = '';
 };
 
 const startCountdown = () => {
@@ -277,6 +304,32 @@ onUnmounted(() => {
 
 .brand-card:active {
   transform: scale(0.95);
+}
+
+.brand-card.selected {
+  position: relative;
+}
+
+.brand-card.selected::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  border: 2px solid #ff4b2b;
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+.brand-card.selected .brand-logo {
+  box-shadow: 0 4px 12px rgba(255, 75, 43, 0.4);
+}
+
+.brand-card.selected .brand-name {
+  color: #ff4b2b;
+  font-weight: 600;
 }
 
 .brand-logo {
@@ -445,5 +498,33 @@ onUnmounted(() => {
 .colon {
   margin: 0 4px;
   font-weight: 700;
+}
+
+.empty-container {
+  padding: 60px 16px;
+  text-align: center;
+  background: white;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 16px;
+}
+
+.clear-filter-btn {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 24px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 75, 43, 0.4);
 }
 </style>
