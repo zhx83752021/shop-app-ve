@@ -92,11 +92,11 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[0].id,
           title: '时尚运动鞋 透气舒适跑步鞋',
           description: '轻便透气，舒适缓震，适合各种运动场景',
-          mainImage: 'https://picsum.photos/400/400?random=1',
+          mainImage: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
           images: [
-            'https://picsum.photos/400/400?random=1',
-            'https://picsum.photos/400/400?random=2',
-            'https://picsum.photos/400/400?random=3'
+            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&h=400&fit=crop'
           ],
           price: 599,
           originalPrice: 899,
@@ -115,10 +115,10 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[2].id,
           title: '水润保湿精华液 深层补水',
           description: '深层补水保湿，提亮肤色，改善肌肤干燥',
-          mainImage: 'https://picsum.photos/400/400?random=4',
+          mainImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop',
           images: [
-            'https://picsum.photos/400/400?random=4',
-            'https://picsum.photos/400/400?random=5'
+            'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop'
           ],
           price: 299,
           originalPrice: 499,
@@ -137,11 +137,11 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[3].id,
           title: '无线蓝牙耳机 降噪入耳式',
           description: '主动降噪，长续航，高音质',
-          mainImage: 'https://picsum.photos/400/400?random=6',
+          mainImage: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=400&fit=crop',
           images: [
-            'https://picsum.photos/400/400?random=6',
-            'https://picsum.photos/400/400?random=7',
-            'https://picsum.photos/400/400?random=8'
+            'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=400&h=400&fit=crop'
           ],
           price: 199,
           originalPrice: 399,
@@ -160,10 +160,10 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[1].id,
           title: '户外登山包 大容量防水背包',
           description: '50L大容量，防水防撕裂，舒适背负系统',
-          mainImage: 'https://picsum.photos/400/400?random=9',
+          mainImage: 'https://images.unsplash.com/photo-1622260614153-03223fb72052?w=400&h=400&fit=crop',
           images: [
-            'https://picsum.photos/400/400?random=9',
-            'https://picsum.photos/400/400?random=10'
+            'https://images.unsplash.com/photo-1622260614153-03223fb72052?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1511556820780-d912e42b4980?w=400&h=400&fit=crop'
           ],
           price: 399,
           originalPrice: 599,
@@ -182,10 +182,10 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
           categoryId: categories[4].id,
           title: '新鲜水果礼盒 进口车厘子',
           description: '智利进口，JJ级大果，新鲜直达',
-          mainImage: 'https://picsum.photos/400/400?random=11',
+          mainImage: 'https://images.unsplash.com/photo-1528821128474-27f963b062bf?w=400&h=400&fit=crop',
           images: [
-            'https://picsum.photos/400/400?random=11',
-            'https://picsum.photos/400/400?random=12'
+            'https://images.unsplash.com/photo-1528821128474-27f963b062bf?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=400&h=400&fit=crop'
           ],
           price: 199,
           originalPrice: 299,
@@ -270,7 +270,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
       prisma.banner.create({
         data: {
           title: '春季新品大促',
-          image: 'https://picsum.photos/800/400?random=13',
+          image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=400&fit=crop',
           link: '/products',
           position: 'HOME',
           sort: 1
@@ -279,7 +279,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
       prisma.banner.create({
         data: {
           title: '限时秒杀',
-          image: 'https://picsum.photos/800/400?random=14',
+          image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800&h=400&fit=crop',
           link: '/flash-sale',
           position: 'HOME',
           sort: 2
@@ -288,7 +288,7 @@ export async function seedDatabase(prisma: PrismaClient): Promise<void> {
       prisma.banner.create({
         data: {
           title: '会员专享',
-          image: 'https://picsum.photos/800/400?random=15',
+          image: 'https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?w=800&h=400&fit=crop',
           link: '/vip',
           position: 'HOME',
           sort: 3

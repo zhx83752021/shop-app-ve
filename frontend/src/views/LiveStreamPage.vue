@@ -86,7 +86,7 @@ const liveStreams = ref<LiveStream[]>([
   {
     id: '1',
     title: '【限时抢购】Apple iPhone 15 Pro 超值优惠',
-    cover: 'https://images.unsplash.com/photo-1592286927505-c5d39f747cc6?w=400&h=300&fit=crop',
+    cover: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=300&fit=crop',
     anchorName: '科技数码精选',
     anchorAvatar: 'https://ui-avatars.com/api/?name=Tech&background=667eea&color=fff',
     viewers: 12580,
