@@ -206,10 +206,8 @@ const filterByBrand = (brandName: string) => {
   if (selectedBrand.value === brandName) {
     // 如果点击已选中的品牌，则取消筛选
     selectedBrand.value = '';
-    ElMessage.info('已显示全部品牌商品');
   } else {
     selectedBrand.value = brandName;
-    ElMessage.success(`已筛选 ${brandName} 品牌商品`);
   }
 };
 
