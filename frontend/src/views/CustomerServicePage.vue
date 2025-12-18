@@ -205,6 +205,8 @@ onMounted(() => {
 <style scoped>
 .chat-page {
   height: 100vh;
+  max-width: 28rem; /* 448px = max-w-md */
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   background: #f5f5f5;
