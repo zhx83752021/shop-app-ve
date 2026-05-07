@@ -34,7 +34,7 @@
         <el-table-column prop="link" label="跳转链接" min-width="250" show-overflow-tooltip />
         <el-table-column label="排序" width="100">
           <template #default="{ row }">
-            {{ row.sortOrder }}
+            {{ row.sort }}
           </template>
         </el-table-column>
         <el-table-column label="状态" width="100">
@@ -92,8 +92,8 @@
         <el-form-item label="跳转链接" prop="link">
           <el-input v-model="formData.link" placeholder="请输入跳转链接（可选）" />
         </el-form-item>
-        <el-form-item label="排序" prop="sortOrder">
-          <el-input-number v-model="formData.sortOrder" :min="0" :max="9999" />
+        <el-form-item label="排序" prop="sort">
+          <el-input-number v-model="formData.sort" :min="0" :max="9999" />
           <el-text type="info" size="small" style="margin-left: 10px">数字越小越靠前</el-text>
         </el-form-item>
         <el-form-item label="状态" prop="status">
@@ -124,7 +124,7 @@ interface Banner {
   title: string
   image: string
   link: string
-  sortOrder: number
+  sort: number
   status: string
   createdAt: string
 }
@@ -144,7 +144,7 @@ const formData = reactive({
   title: '',
   image: '',
   link: '',
-  sortOrder: 0,
+  sort: 0,
   status: 'ACTIVE'
 })
 
@@ -183,7 +183,7 @@ const handleEdit = (banner: Banner) => {
   formData.title = banner.title
   formData.image = banner.image
   formData.link = banner.link
-  formData.sortOrder = banner.sortOrder
+  formData.sort = banner.sort
   formData.status = banner.status
   showAddDialog.value = true
 }
@@ -201,7 +201,7 @@ const handleSubmit = async () => {
         title: formData.title,
         image: formData.image,
         link: formData.link,
-        sortOrder: formData.sortOrder,
+        sort: formData.sort,
         status: formData.status
       }
 
@@ -266,7 +266,7 @@ const resetForm = () => {
   formData.title = ''
   formData.image = ''
   formData.link = ''
-  formData.sortOrder = 0
+  formData.sort = 0
   formData.status = 'ACTIVE'
   formRef.value?.resetFields()
 }

@@ -17,111 +17,89 @@
       </div>
     </div>
 
-    <!-- 内容流 -->
-    <div class="flex-1 overflow-auto">
-      <div v-if="loading" class="text-center py-10 text-gray-400">
-        加载中...
-      </div>
-      <div
-        v-for="(post, index) in posts"
-        :key="post.id"
-        class="border-b border-gray-100 pb-4 mb-4"
-      >
-        <!-- 用户信息 -->
-        <div class="flex items-center gap-3 px-4 pt-4 mb-3">
-          <ImageWithFallback
-            :src="post.avatar"
-            :alt="post.username"
-            class-name="w-10 h-10 rounded-full object-cover"
-          />
-          <div class="flex-1">
-            <h3 class="text-sm font-medium">{{ post.username }}</h3>
-          </div>
-          <button
-            v-if="post.userId !== currentUserId"
-            @click="handleFollow(post.userId, index)"
-            :class="[
-              'text-sm px-4 py-1 rounded-full border transition-colors',
-              post.isFollowing
-                ? 'bg-gray-100 text-gray-600 border-gray-300'
-                : 'text-primary border-primary hover:bg-primary hover:text-white'
-            ]"
-          >
-            {{ post.isFollowing ? '已关注' : '关注' }}
-          </button>
-        </div>
-
-        <!-- 图片/视频 -->
-        <div class="relative mb-3">
-          <ImageWithFallback
-            :src="post.image"
-            :alt="post.title"
-            class-name="w-full h-96 object-cover"
-          />
-          <div
-            v-if="post.type === 'VIDEO'"
-            class="absolute inset-0 flex items-center justify-center bg-black/20"
-          >
-            <div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
-              <Play class="w-8 h-8 text-gray-900 ml-1" fill="currentColor" />
+    <!-- 内容流 (瀑布流双栏布局) -->
+    <div class="flex-1 overflow-auto bg-[#F9F9F9]">
+      <div v-if="loading" class="grid grid-cols-2 gap-3 p-3">
+        <div v-for="i in 4" :key="i" class="bg-white rounded-2xl overflow-hidden shadow-sm animate-pulse">
+          <div class="aspect-[3/4] bg-gray-100"></div>
+          <div class="p-3 space-y-2">
+            <div class="h-4 bg-gray-100 rounded w-3/4"></div>
+            <div class="flex items-center justify-between">
+              <div class="h-4 bg-gray-100 rounded-full w-8"></div>
+              <div class="h-4 bg-gray-100 rounded w-12"></div>
             </div>
           </div>
-          <div
-            v-if="post.duration"
-            class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded"
-          >
-            {{ post.duration }}
-          </div>
         </div>
+      </div>
 
-        <!-- 标题和内容 -->
-        <div class="px-4 mb-3">
-          <h2 class="mb-2 font-semibold">{{ post.title }}</h2>
-          <p class="text-sm text-gray-600 line-clamp-2">{{ post.content }}</p>
+      <div v-else-if="posts.length === 0" class="flex flex-col items-center justify-center py-20 text-gray-400">
+        <div class="w-16 h-16 mb-4 bg-gray-50 rounded-full flex items-center justify-center">
+          <ShoppingBag class="w-8 h-8 opacity-20" />
         </div>
+        <p class="text-sm font-light">还没人分享动态哦~</p>
+      </div>
 
-        <!-- 互动栏 -->
-        <div class="flex items-center gap-6 px-4 mb-3">
-          <button
-            @click="handleLike(post.id, index)"
-            :class="[
-              'flex items-center gap-2 transition-colors',
-              post.isLiked ? 'text-red-500' : 'text-gray-600'
-            ]"
-          >
-            <Heart :class="['w-5 h-5', post.isLiked ? 'fill-current' : '']" />
-            <span class="text-sm">{{ post.likesDisplay }}</span>
-          </button>
-          <button
-            @click="handleComment(post.id)"
-            class="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors"
-          >
-            <MessageCircle class="w-5 h-5" />
-            <span class="text-sm">{{ post.commentsDisplay }}</span>
-          </button>
-        </div>
-
-        <!-- 商品链接区 -->
+      <div v-else class="grid grid-cols-2 gap-3 p-3">
         <div
-          v-if="post.hasProduct && post.products && post.products.length > 0"
-          class="mx-4 p-3 bg-gray-50 rounded-xl flex items-center gap-3"
+          v-for="(post, index) in posts"
+          :key="post.id"
+          class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col active:scale-[0.98] cursor-pointer"
+          @click="handleBuyProduct(post.products[0]?.id || post.id)"
         >
-          <ImageWithFallback
-            :src="post.products[0].mainImage"
-            :alt="post.products[0].title"
-            class-name="w-16 h-16 rounded-lg object-cover"
-          />
-          <div class="flex-1">
-            <p class="text-sm mb-1 line-clamp-2">{{ post.products[0].title }}</p>
-            <p class="text-primary font-semibold">¥{{ post.products[0].price }}</p>
+          <!-- 图片/视频 区域 -->
+          <div class="relative aspect-[3/4] overflow-hidden">
+            <ImageWithFallback
+              :src="post.image"
+              :alt="post.title"
+              class-name="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+            />
+            
+            <!-- 视频角标 -->
+            <div
+              v-if="post.type === 'VIDEO'"
+              class="absolute top-2 right-2 w-6 h-6 bg-black/40 backdrop-blur rounded-full flex items-center justify-center"
+            >
+              <Play class="w-3 h-3 text-white fill-current" />
+            </div>
+
+            <!-- 商品挂载提示 -->
+            <div
+              v-if="post.hasProduct"
+              class="absolute bottom-2 left-2 bg-white/90 backdrop-blur px-1.5 py-0.5 rounded-lg flex items-center gap-1 shadow-sm"
+            >
+              <ShoppingBag class="w-3 h-3 text-primary" />
+              <span class="text-[10px] font-bold text-ink">🛒 同款</span>
+            </div>
           </div>
-          <button
-            @click="handleBuyProduct(post.products[0].id)"
-            class="bg-primary text-white px-4 py-2 rounded-full flex items-center gap-1 text-sm hover:bg-primary-dark transition-colors"
-          >
-            <ShoppingBag class="w-4 h-4" />
-            购买
-          </button>
+
+          <!-- 底部文案区 -->
+          <div class="p-3 flex flex-col justify-between flex-1">
+            <h2 class="text-sm font-semibold text-ink line-clamp-2 leading-snug mb-2">{{ post.title }}</h2>
+            
+            <div class="flex items-center justify-between gap-2 mt-auto">
+              <!-- 作者信息 -->
+              <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                <ImageWithFallback
+                  :src="post.avatar"
+                  :alt="post.username"
+                  class-name="w-5 h-5 rounded-full object-cover border border-gray-100"
+                />
+                <span class="text-[11px] text-ink-muted truncate font-medium">{{ post.username }}</span>
+              </div>
+
+              <!-- 点赞数 -->
+              <button
+                @click.stop="handleLike(post.id, index)"
+                :class="[
+                  'flex items-center gap-0.5 transition-colors',
+                  post.isLiked ? 'text-danger' : 'text-ink-muted'
+                ]"
+              >
+                <Heart :class="['w-3.5 h-3.5', post.isLiked ? 'fill-current' : '']" />
+                <span class="text-[11px] font-medium">{{ post.likesDisplay }}</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -186,15 +164,38 @@ const handleTabChange = (index: number) => {
 const loadPosts = async () => {
   try {
     loading.value = true
-    const data = await getPosts({ page: 1, pageSize: 20 })
+    const currentTabName = tabs[currentTab.value]
+    const data = await getPosts({ page: 1, pageSize: 20, tab: currentTabName })
     console.log('获取帖子数据成功:', data)
 
-    posts.value = data.items.map((post: any) => ({
+    if (!data || !data.items || data.items.length === 0) {
+      posts.value = []
+      return
+    }
+
+    let itemsToProcess = data.items
+    
+    // 前端直接进行 Tab 过滤（避免因后端未重启导致参数被忽略）
+    if (currentTabName && currentTabName !== '推荐' && currentTabName !== '关注') {
+      const keywordMap: Record<string, string[]> = {
+        '时尚': ['穿搭', '裙', '妆', '护肤', '时尚', '出游'],
+        '美食': ['探店', '咖啡', '食', '餐', '美食'],
+        '旅行': ['旅行', '出游', '游'],
+        '数码': ['桌面', '键盘', '耳机', '数码', '体验', '测评'],
+        '家居': ['卧室', '客厅', '家居', '四件套', '绿植']
+      }
+      const keywords = keywordMap[currentTabName] || []
+      itemsToProcess = itemsToProcess.filter((p: any) => 
+        keywords.some(kw => p.title?.includes(kw) || p.content?.includes(kw))
+      )
+    }
+
+    posts.value = itemsToProcess.map((post: any) => ({
       id: post.id,
       userId: post.userId,
       type: post.type,
       image: post.images?.[0] || post.image || 'https://picsum.photos/800/800',
-      avatar: post.user?.avatar || 'https://picsum.photos/100/100',
+      avatar: post.user?.avatar || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop',
       username: post.user?.nickname || post.username || '匿名用户',
       title: post.title,
       content: post.content,

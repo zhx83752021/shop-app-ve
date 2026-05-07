@@ -108,28 +108,28 @@ const favorites = ref<FavoriteItem[]>([
     id: '1',
     title: 'Apple iPhone 15 Pro Max',
     description: '钛金属设计，A17 Pro芯片',
-    image: 'https://placehold.co/400x400/667eea/FFF?text=iPhone+15+Pro',
+    image: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
     price: 9999
   },
   {
     id: '2',
     title: 'Nike Air Jordan 1',
     description: '经典配色，限量发售',
-    image: 'https://placehold.co/400x400/4ADE80/FFF?text=Air+Jordan+1',
+    image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
     price: 1399
   },
   {
     id: '3',
     title: 'Sony WH-1000XM5 降噪耳机',
     description: '业界领先降噪技术',
-    image: 'https://placehold.co/400x400/3B9BFF/FFF?text=Sony+WH-1000XM5',
+    image: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
     price: 2499
   },
   {
     id: '4',
     title: 'Dyson V15吸尘器',
     description: '激光探测微尘',
-    image: 'https://placehold.co/400x400/FFD93D/333?text=Dyson+V15',
+    image: 'https://images.pexels.com/photos/3825540/pexels-photo-3825540.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
     price: 4990
   }
 ])
@@ -204,11 +204,12 @@ const addToCart = async (productId: string) => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  color: white;
+  background: white;
+  color: #1A1A2E;
   position: sticky;
   top: 0;
   z-index: 10;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .back-btn,
@@ -216,13 +217,14 @@ const addToCart = async (productId: string) => {
   background: none;
   border: none;
   cursor: pointer;
-  color: white;
+  color: #1A1A2E;
   font-size: 15px;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .favorites-list {

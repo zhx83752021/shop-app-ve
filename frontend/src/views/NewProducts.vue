@@ -21,7 +21,7 @@
 
     <div class="products-grid">
       <div
-        v-for="product in products"
+        v-for="product in filteredProducts"
         :key="product.id"
         class="product-card"
       >
@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { ArrowLeft, ShoppingCart } from 'lucide-vue-next';
 import { ElMessage } from 'element-plus';
 import ImageWithFallback from '@/components/ImageWithFallback.vue';
@@ -72,6 +72,24 @@ const filters = [
   { id: 'clothes', name: '服饰新品' }
 ];
 const activeFilter = ref('all');
+
+// 使用计算属性进行过滤
+const filteredProducts = computed(() => {
+  if (activeFilter.value === 'all') return products.value;
+  
+  const keywordMap: Record<string, string[]> = {
+    latest: ['2024', '最新', '新'],
+    popular: ['爆款', '热卖', '人气', '鞋'],
+    tech: ['手机', '耳机', '电脑', '科技', '智能', 'Apple', '小米'],
+    home: ['家居', '卧室', '客厅', '绿植', '灯'],
+    clothes: ['服饰', '穿搭', '裙', '鞋', '包']
+  };
+  
+  const keywords = keywordMap[activeFilter.value] || [];
+  return products.value.filter(p => 
+    keywords.some(kw => p.title.includes(kw) || p.brief.includes(kw))
+  );
+});
 
 const loadProducts = async () => {
   try {
@@ -131,20 +149,24 @@ onMounted(() => {
   align-items: center;
   padding: 12px 16px;
   background: white;
+  color: #1A1A2E;
   position: sticky;
   top: 0;
   z-index: 10;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .back-btn {
   background: none;
   border: none;
   cursor: pointer;
+  color: #1A1A2E;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .filters-bar {

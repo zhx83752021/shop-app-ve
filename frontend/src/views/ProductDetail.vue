@@ -1,105 +1,198 @@
 <template>
-  <div class="detail-page max-w-md mx-auto relative">
-    <!-- 顶部返回栏 -->
-    <div class="header">
-      <button @click="$router.back()" class="back-btn">
-        <ArrowLeft class="w-6 h-6" />
-      </button>
-      <div class="header-actions">
-        <Share2 class="w-5 h-5" />
-        <MoreVertical class="w-5 h-5" />
+  <div class="detail-page max-w-md mx-auto relative bg-surface min-h-screen pb-24">
+    <!-- ===== 顶部返回栏 ===== -->
+    <div
+      class="sticky top-0 z-20 transition-all duration-300"
+      :class="scrolled ? 'glass border-b border-primary-100 shadow-card' : 'bg-transparent'"
+    >
+      <div class="flex justify-between items-center px-4 py-3">
+        <button
+          @click="$router.back()"
+          :class="['w-9 h-9 rounded-full flex items-center justify-center press-effect transition-colors',
+            scrolled ? 'bg-surface-muted' : 'bg-ink/30 backdrop-blur-sm']"
+        >
+          <ArrowLeft :class="['w-5 h-5', scrolled ? 'text-ink' : 'text-white']" />
+        </button>
+        <div v-if="scrolled" class="font-medium text-sm text-ink line-clamp-1 flex-1 mx-3">{{ product.title }}</div>
+        <div class="flex items-center gap-2">
+          <button
+            :class="['w-9 h-9 rounded-full flex items-center justify-center press-effect',
+              scrolled ? 'bg-surface-muted' : 'bg-ink/30 backdrop-blur-sm']"
+          >
+            <Share2 :class="['w-4 h-4', scrolled ? 'text-ink' : 'text-white']" />
+          </button>
+          <button
+            :class="['w-9 h-9 rounded-full flex items-center justify-center press-effect',
+              scrolled ? 'bg-surface-muted' : 'bg-ink/30 backdrop-blur-sm']"
+          >
+            <MoreVertical :class="['w-4 h-4', scrolled ? 'text-ink' : 'text-white']" />
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- 商品图片轮播 -->
-    <div class="product-images">
-      <div class="swiper-container">
-        <ImageWithFallback
-          :src="product.mainImage || product.image || ''"
-          :alt="product.title"
-          class-name="product-img"
+    <!-- ===== 商品主图（轮播） ===== -->
+    <div
+      class="relative -mt-14 bg-white overflow-hidden"
+      @touchstart="onTouchStart"
+      @touchend="onTouchEnd"
+    >
+      <!-- 图片滑动轨道 -->
+      <div
+        class="flex transition-transform duration-300 ease-out"
+        :style="{ transform: `translateX(-${activeImg * 100}%)` }"
+      >
+        <img
+          v-for="(img, i) in allImages"
+          :key="i"
+          :src="img"
+          :alt="`${product.title} - 图片${i + 1}`"
+          loading="lazy"
+          decoding="async"
+          class="w-full h-80 object-cover flex-shrink-0"
         />
       </div>
-      <div class="image-indicator">1/1</div>
-    </div>
-
-    <!-- 价格信息 -->
-    <div class="price-section">
-      <div class="price-row">
-        <span class="current-price">¥{{ product.price }}</span>
-        <span class="original-price">¥{{ product.originalPrice }}</span>
+      <!-- 图片底部渐变 -->
+      <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-surface to-transparent pointer-events-none"></div>
+      <!-- 图片计数器 -->
+      <div class="absolute bottom-4 right-4 bg-ink/50 text-white text-xs px-3 py-1 rounded-pill backdrop-blur-sm">
+        {{ activeImg + 1 }} / {{ allImages.length }}
       </div>
-      <div class="sales-info">已售{{ product.sales }}件</div>
-    </div>
-
-    <!-- 商品标题 -->
-    <div class="title-section">
-      <h1 class="product-title">{{ product.title }}</h1>
-      <div class="product-tags">
-        <span v-for="tag in product.tags" :key="tag" class="tag">{{ tag }}</span>
+      <!-- 轮播指示点 -->
+      <div v-if="allImages.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+        <button
+          v-for="(_, i) in allImages"
+          :key="i"
+          @click="activeImg = i"
+          :class="[
+            'h-1.5 rounded-full transition-all duration-300',
+            i === activeImg ? 'bg-white w-5' : 'bg-white/50 w-1.5'
+          ]"
+        />
       </div>
     </div>
 
-    <!-- 服务保障 -->
-    <div class="service-section">
-      <div class="service-item">
-        <Shield class="w-4 h-4" />
+    <!-- ===== 价格 + 标题区 ===== -->
+    <div class="bg-white mx-0 px-4 pt-4 pb-3">
+      <!-- 价格行 -->
+      <div class="flex items-end gap-3 mb-2">
+        <div class="flex items-baseline gap-0.5">
+          <span class="price-tag text-xs">¥</span>
+          <span class="price-tag font-display text-3xl">{{ formatPrice(product.price) }}</span>
+        </div>
+        <span class="text-sm text-ink-muted line-through mb-0.5">¥{{ formatPrice(product.originalPrice) }}</span>
+        <!-- 折扣标签 -->
+        <span v-if="discountPercent" class="badge-sale mb-0.5">省{{ discountPercent }}元</span>
+      </div>
+      <!-- 销量信息 -->
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-xs text-ink-muted">已售 {{ product.sales }} 件</span>
+        <!-- 星级评分 -->
+        <div class="flex items-center gap-0.5">
+          <Star v-for="i in 5" :key="i" class="w-3 h-3 fill-accent text-accent" />
+          <span class="text-xs text-ink-muted ml-1">4.8</span>
+        </div>
+      </div>
+      <!-- 商品标题 -->
+      <h1 class="font-body text-base font-medium text-ink leading-snug mb-3">{{ product.title }}</h1>
+      <!-- 标签组 -->
+      <div class="flex gap-2 flex-wrap">
+        <span v-for="tag in product.tags" :key="tag" class="badge-new">{{ tag }}</span>
+      </div>
+    </div>
+
+    <!-- ===== 服务保障 ===== -->
+    <div class="bg-white mt-2 px-4 py-3 flex items-center justify-around border-t border-surface-muted">
+      <div class="flex items-center gap-1.5 text-xs text-ink-muted">
+        <Shield class="w-4 h-4 text-success flex-shrink-0" />
         <span>正品保障</span>
       </div>
-      <div class="service-item">
-        <Truck class="w-4 h-4" />
+      <div class="w-px h-4 bg-surface-muted"></div>
+      <div class="flex items-center gap-1.5 text-xs text-ink-muted">
+        <Truck class="w-4 h-4 text-primary flex-shrink-0" />
         <span>免费配送</span>
       </div>
-      <div class="service-item">
-        <RefreshCcw class="w-4 h-4" />
+      <div class="w-px h-4 bg-surface-muted"></div>
+      <div class="flex items-center gap-1.5 text-xs text-ink-muted">
+        <RefreshCcw class="w-4 h-4 text-accent flex-shrink-0" />
         <span>7天退换</span>
+      </div>
+      <div class="w-px h-4 bg-surface-muted"></div>
+      <div class="flex items-center gap-1.5 text-xs text-ink-muted">
+        <CreditCard class="w-4 h-4 text-ink-muted flex-shrink-0" />
+        <span>安全支付</span>
       </div>
     </div>
 
-    <!-- 商品详情 -->
-    <div class="detail-section">
-      <div class="section-title">商品详情</div>
-      <div class="detail-content">
-        <p>{{ product.description }}</p>
-        <ImageWithFallback
-          v-for="i in 3"
+    <!-- ===== 商品详情 ===== -->
+    <div class="bg-white mt-2 px-4 pt-4 pb-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-1 h-5 bg-primary rounded-full"></div>
+        <h2 class="font-semibold text-ink">商品详情</h2>
+      </div>
+      <p class="text-sm text-ink-muted leading-relaxed mb-4">{{ product.description }}</p>
+      <!-- 详情图（根据商品分类动态匹配，图文语义关联） -->
+      <div class="space-y-2">
+        <img
+          v-for="(id, i) in detailImageIds"
           :key="i"
-          :src="`https://picsum.photos/800/600?random=${i}`"
-          :alt="`商品详情图${i}`"
-          class-name="detail-img"
+          :src="`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop`"
+          :alt="`${product.title} - 详情${i + 1}`"
+          loading="lazy"
+          decoding="async"
+          class="w-full rounded-xl object-cover"
         />
       </div>
     </div>
 
-    <!-- 底部操作栏 -->
-    <div class="bottom-bar">
-      <div class="bar-actions">
-        <button class="action-btn">
-          <Store class="w-5 h-5" />
-          <span>店铺</span>
-        </button>
-        <button class="action-btn">
-          <MessageCircle class="w-5 h-5" />
-          <span>客服</span>
-        </button>
-        <button @click="toggleFavorite" class="action-btn">
-          <Heart :class="['w-5 h-5', isFavorite ? 'fill-red-500 text-red-500' : '']" />
-          <span>收藏</span>
-        </button>
-      </div>
-      <div class="bar-buttons">
-        <button @click="addToCart" class="btn-cart">加入购物车</button>
-        <button @click="buyNow" class="btn-buy">立即购买</button>
+    <!-- ===== 底部操作栏 ===== -->
+    <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass border-t border-primary-100 px-4 py-3 shadow-bottom-bar z-30">
+      <div class="flex items-center gap-3">
+        <!-- 快捷操作按钮组 -->
+        <div class="flex items-center gap-4 mr-1">
+          <button class="flex flex-col items-center gap-0.5 press-effect cursor-pointer">
+            <Store class="w-5 h-5 text-ink-muted" />
+            <span class="text-xs text-ink-muted">店铺</span>
+          </button>
+          <button class="flex flex-col items-center gap-0.5 press-effect cursor-pointer">
+            <MessageCircle class="w-5 h-5 text-ink-muted" />
+            <span class="text-xs text-ink-muted">客服</span>
+          </button>
+          <button @click="toggleFavorite" class="flex flex-col items-center gap-0.5 press-effect cursor-pointer">
+            <Heart :class="['w-5 h-5 transition-colors', isFavorite ? 'fill-danger text-danger' : 'text-ink-muted']" />
+            <span class="text-xs text-ink-muted">收藏</span>
+          </button>
+        </div>
+        <!-- 分割线 -->
+        <div class="w-px h-8 bg-surface-muted flex-shrink-0"></div>
+        <!-- 主操作按钮 -->
+        <div class="flex-1 flex gap-2">
+          <button
+            @click="addToCart"
+            class="flex-1 py-3 rounded-pill font-medium text-sm text-primary border-2 border-primary hover:bg-primary-50 transition-colors press-effect cursor-pointer"
+          >
+            加入购物车
+          </button>
+          <button
+            @click="buyNow"
+            class="flex-1 py-3 rounded-pill font-medium text-sm text-white bg-primary hover:bg-primary-dark transition-colors press-effect cursor-pointer shadow-md"
+            style="box-shadow: 0 4px 16px rgba(255,69,0,0.35)"
+          >
+            立即购买
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, Share2, MoreVertical, Shield, Truck, RefreshCcw, Store, MessageCircle, Heart } from 'lucide-vue-next'
-import ImageWithFallback from '@/components/ImageWithFallback.vue'
+import {
+  ArrowLeft, Share2, MoreVertical, Shield, Truck, RefreshCcw,
+  Store, MessageCircle, Heart, Star, CreditCard
+} from 'lucide-vue-next'
 import { ElMessage } from 'element-plus'
 import { getProductById } from '@/api/product'
 import { addToCart as addToCartAPI } from '@/api/cart'
@@ -108,47 +201,101 @@ import { addFavorite, removeFavorite, checkFavoriteStatus } from '@/api/user'
 const route = useRoute()
 const router = useRouter()
 
+/* 页面滚动状态（用于透明/实体顶栏切换） */
+const scrolled = ref(false)
+const handleScroll = () => {
+  const el = document.querySelector('.detail-page')?.parentElement
+  scrolled.value = (el?.scrollTop || 0) > 80
+}
+
+/* 图片轮播状态 */
+const activeImg = ref(0)
+let touchStartX = 0
+
+const onTouchStart = (e: TouchEvent) => {
+  touchStartX = e.touches[0].clientX
+}
+
+const onTouchEnd = (e: TouchEvent) => {
+  const dx = e.changedTouches[0].clientX - touchStartX
+  if (Math.abs(dx) > 40) {
+    if (dx < 0 && activeImg.value < allImages.value.length - 1) {
+      activeImg.value++
+    } else if (dx > 0 && activeImg.value > 0) {
+      activeImg.value--
+    }
+  }
+}
+
+/* 按商品分类预设详情图 ID（高质量、主题贴合 Pexels 图） */
+const CATEGORY_IMAGE_POOLS: Record<string, number[]> = {
+  '手机':    [1092644,  607812, 1038000],
+  '美妆':    [3373736, 2693617, 3825517],
+  '运动':    [2529148, 1598505, 2048548],
+  '服装':    [1536619, 1068349, 1536612],
+  '数码':    [1779487, 5082579, 3825540],
+  '食品':    [1640777, 1640772, 699953],
+  'default': [5632399, 3735173, 1600698],
+}
+
+/* 根据商品标签动态匹配详情图 */
+const detailImageIds = computed(() => {
+  const primaryTag = product.value.tags?.[0]
+  return CATEGORY_IMAGE_POOLS[primaryTag] || CATEGORY_IMAGE_POOLS['default']
+})
+
+/* 所有可展示图片：主图 + 分类匹配的详情图 */
+const allImages = computed(() => {
+  const mainImg = product.value.mainImage || product.value.image
+  const detailImgs = detailImageIds.value.map(
+    id => `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop`
+  )
+  return [mainImg, ...detailImgs].filter(Boolean)
+})
+
 const product = ref<any>({
-  id: '',
-  title: '加载中...',
-  price: 0,
-  originalPrice: 0,
-  image: '',
-  mainImage: '',
-  sales: 0,
-  tags: [],
-  description: '商品详情加载中...'
+  id: '', title: '加载中…', price: 0, originalPrice: 0,
+  image: '', mainImage: '', sales: 0, tags: [], description: '商品详情加载中…'
 })
 
 const isFavorite = ref(false)
 const loading = ref(false)
 
-// 加载商品详情
+/* 统一价格格式化，消除模板层 replace 调用 */
+const formatPrice = (price: any): string => {
+  if (price === undefined || price === null) return '0.00'
+  const num = parseFloat(String(price).replace(/[¥￥,\s]/g, ''))
+  return isNaN(num) ? '0.00' : num.toFixed(2)
+}
+
+/* 计算节省金额 */
+const discountPercent = computed(() => {
+  const cur = parseFloat(String(product.value.price)) || 0
+  const ori = parseFloat(String(product.value.originalPrice)) || 0
+  const saved = ori - cur
+  return saved > 0 ? saved.toFixed(0) : null
+})
+
+/* 加载商品详情 */
 const loadProduct = async () => {
   try {
     loading.value = true
     const id = route.params.id as string
     const data = await getProductById(id)
     product.value = data
-
-    // 检查收藏状态
     await checkFavorite(id)
   } catch (error) {
-    console.error('加载商品失败:', error)
     ElMessage.error('加载失败')
   } finally {
     loading.value = false
   }
 }
 
-// 检查收藏状态
 const checkFavorite = async (productId: string) => {
   try {
     const result = await checkFavoriteStatus(productId)
     isFavorite.value = result.isFavorite
-  } catch (error) {
-    console.error('检查收藏状态失败:', error)
-    // 忽略错误，默认未收藏
+  } catch {
     isFavorite.value = false
   }
 }
@@ -163,7 +310,7 @@ const toggleFavorite = async () => {
       ElMessage.success('收藏成功')
     }
     isFavorite.value = !isFavorite.value
-  } catch (error) {
+  } catch {
     ElMessage.error('操作失败')
   }
 }
@@ -172,224 +319,35 @@ const addToCart = async () => {
   try {
     await addToCartAPI(product.value.id, 1)
     ElMessage.success('已加入购物车')
-  } catch (error) {
+  } catch {
     ElMessage.error('添加失败')
   }
 }
 
 const buyNow = () => {
-  addToCart()
-  setTimeout(() => {
-    router.push('/cart')
-  }, 500)
+  const checkoutItem = {
+    id: `temp_${Date.now()}`,
+    productId: product.value.id,
+    productTitle: product.value.title,
+    productImage: product.value.mainImage || product.value.image,
+    price: product.value.price,
+    quantity: 1,
+    skuSpecs: null // 后续可支持规格选择
+  }
+  
+  sessionStorage.setItem('checkout_items', JSON.stringify([checkoutItem]))
+  router.push('/checkout')
 }
 
 onMounted(() => {
   loadProduct()
+  /* 监听父级滚动容器 */
+  const scrollEl = document.querySelector('.detail-page')?.parentElement
+  scrollEl?.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  const scrollEl = document.querySelector('.detail-page')?.parentElement
+  scrollEl?.removeEventListener('scroll', handleScroll)
 })
 </script>
-
-<style scoped>
-.detail-page {
-  min-height: 100vh;
-  background: #f5f5f5;
-  padding-bottom: 80px;
-}
-
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: white;
-}
-
-.back-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.header-actions {
-  display: flex;
-  gap: 16px;
-}
-
-.product-images {
-  position: relative;
-  background: white;
-}
-
-.product-img {
-  width: 100%;
-  height: 375px;
-  object-fit: cover;
-}
-
-.image-indicator {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  background: rgba(0,0,0,0.5);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
-.price-section {
-  background: white;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.current-price {
-  font-size: 28px;
-  font-weight: bold;
-  color: #ff4757;
-}
-
-.original-price {
-  font-size: 14px;
-  color: #999;
-  text-decoration: line-through;
-}
-
-.sales-info {
-  font-size: 14px;
-  color: #666;
-}
-
-.title-section {
-  background: white;
-  padding: 16px;
-  margin-top: 8px;
-}
-
-.product-title {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.5;
-  margin-bottom: 12px;
-}
-
-.product-tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tag {
-  padding: 4px 8px;
-  background: #fff3f3;
-  color: #ff4757;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.service-section {
-  background: white;
-  padding: 16px;
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-around;
-}
-
-.service-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  color: #666;
-}
-
-.detail-section {
-  background: white;
-  padding: 16px;
-  margin-top: 8px;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 16px;
-}
-
-.detail-content p {
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-
-.detail-img {
-  width: 100%;
-  margin-bottom: 8px;
-}
-
-.bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 448px;
-  margin: 0 auto;
-  background: white;
-  border-top: 1px solid #eee;
-  display: flex;
-  padding: 8px 16px;
-  gap: 12px;
-}
-
-.bar-actions {
-  display: flex;
-  gap: 16px;
-}
-
-.action-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  background: none;
-  border: none;
-  font-size: 11px;
-  color: #666;
-  cursor: pointer;
-}
-
-.bar-buttons {
-  flex: 1;
-  display: flex;
-  gap: 8px;
-}
-
-.btn-cart, .btn-buy {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 24px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.btn-cart {
-  background: #ffd93d;
-  color: #333;
-}
-
-.btn-buy {
-  background: #ff4757;
-  color: white;
-}
-</style>

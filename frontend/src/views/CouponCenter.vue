@@ -138,20 +138,24 @@ onMounted(() => {
   align-items: center;
   padding: 12px 16px;
   background: white;
+  color: #1A1A2E;
   position: sticky;
   top: 0;
   z-index: 10;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .back-btn {
   background: none;
   border: none;
   cursor: pointer;
+  color: #1A1A2E;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .tabs {

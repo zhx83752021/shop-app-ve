@@ -129,6 +129,7 @@ import { useRouter } from 'vue-router'
 import { ArrowLeft, ChevronRight, User, Upload } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus'
 import { getUserProfile } from '@/api/user'
+import http from '@/api/http'
 import ImageWithFallback from '@/components/ImageWithFallback.vue'
 
 const router = useRouter()
@@ -192,20 +193,35 @@ const handleFileChange = (event: Event) => {
   reader.readAsDataURL(file)
 }
 
-const updateAvatar = () => {
-  if (!previewAvatar.value) {
+const updateAvatar = async () => {
+  if (!selectedFile.value) {
     ElMessage.warning('请先选择图片')
     return
   }
 
-  // TODO: 上传图片到服务器
-  // 暂时使用base64作为头像
-  if (userInfo.value) {
-    userInfo.value.avatar = previewAvatar.value
-  }
+  try {
+    const formData = new FormData()
+    formData.append('image', selectedFile.value)
 
-  ElMessage.success('头像已更新')
-  cancelUpload()
+    const response = await http.post('/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    if (response.data?.url) {
+      if (userInfo.value) {
+        userInfo.value.avatar = response.data.url
+      }
+      ElMessage.success('头像已更新')
+      cancelUpload()
+    } else {
+      throw new Error('上传失败，未获取到图片链接')
+    }
+  } catch (error: any) {
+    console.error('上传图片失败:', error)
+    ElMessage.error(error?.response?.data?.message || '图片上传失败，请重试')
+  }
 }
 
 const cancelUpload = () => {

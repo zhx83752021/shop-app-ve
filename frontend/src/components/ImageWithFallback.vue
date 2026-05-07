@@ -3,8 +3,12 @@
     ref="imageContainer"
     :class="['image-container', className, {'loaded': !isLoading && !hasError, 'error': hasError}]"
   >
-    <div v-if="hasError" class="image-placeholder">
-      <span class="placeholder-text">图片加载失败</span>
+    <!-- 任务2：语义化占位（哈希渐变色＋商品首字），替代无意义平底图 -->
+    <div v-if="hasError"
+      :style="{ background: generateGradient(alt) }"
+      class="image-placeholder"
+    >
+      <span class="placeholder-char">{{ alt?.slice(0, 2) }}</span>
     </div>
     <img
       v-else
@@ -59,12 +63,19 @@ const optimizedSrc = computed(() => {
     return ''
   }
 
-  // 如果是data URL、外部URL或不需要优化，直接返回原始URL
-  if (props.src.startsWith('data:') ||
-      props.src.startsWith('http://') ||
-      props.src.startsWith('https://') ||
+  // 拼接基础路径 (针对本地存储的图片)
+  let finalSrc = props.src
+  const imageBaseUrl = import.meta.env.VITE_IMAGE_BASE_URL
+  if (imageBaseUrl && !props.src.startsWith('http') && !props.src.startsWith('data:')) {
+    finalSrc = imageBaseUrl + (props.src.startsWith('/') ? '' : '/') + props.src
+  }
+
+  // 如果是data URL、外部URL或不需要优化，直接返回
+  if (finalSrc.startsWith('data:') ||
+      finalSrc.startsWith('http://') ||
+      finalSrc.startsWith('https://') ||
       props.format === 'original') {
-    return props.src
+    return finalSrc
   }
 
   // 只对本地路径进行优化
@@ -119,6 +130,14 @@ const handleLoad = () => {
   isLoading.value = false
 }
 
+/* 任务2：根据文字哈希生成确定性渐变色，图片加载失败时占位显示商品相关颜色 */
+const generateGradient = (text: string): string => {
+  const hash = [...(text || '')].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)
+  const hue1 = Math.abs(hash) % 360
+  const hue2 = (hue1 + 40) % 360
+  return `linear-gradient(135deg, hsl(${hue1},65%,58%), hsl(${hue2},65%,48%))`
+}
+
 // 设置Intersection Observer以实现懒加载
 onMounted(() => {
   // 立即显示图片（暂时禁用懒加载以确保图片正常显示）
@@ -156,18 +175,17 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
-  color: #999;
-  font-size: 12px;
-  text-align: center;
-  padding: 8px;
   height: 100%;
   width: 100%;
 }
 
-.placeholder-text {
-  word-break: break-word;
-  max-width: 90%;
+/* 商品首字占位（白色大字带部分透明） */
+.placeholder-char {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 .image-el {

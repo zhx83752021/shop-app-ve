@@ -27,7 +27,7 @@
         >
           <div class="address-header">
             <div class="address-info">
-              <span class="name">{{ address.name }}</span>
+              <span class="name">{{ address.receiverName }}</span>
               <span class="phone">{{ address.phone }}</span>
             </div>
             <span v-if="address.isDefault" class="default-badge">默认</span>
@@ -77,7 +77,7 @@
     >
       <el-form :model="addressForm" label-width="80px">
         <el-form-item label="收货人">
-          <el-input v-model="addressForm.name" placeholder="请输入收货人姓名" />
+          <el-input v-model="addressForm.receiverName" placeholder="请输入收货人姓名" />
         </el-form-item>
         <el-form-item label="手机号">
           <el-input v-model="addressForm.phone" placeholder="请输入手机号" />
@@ -126,7 +126,7 @@ import { regionData } from '@/data/regions'
 
 interface Address {
   id: string
-  name: string
+  receiverName: string
   phone: string
   province: string
   city: string
@@ -142,7 +142,7 @@ const loading = ref(false)
 
 // 地址表单数据
 const addressForm = ref({
-  name: '',
+  receiverName: '',
   phone: '',
   province: '',
   city: '',
@@ -185,7 +185,7 @@ const loadAddresses = async () => {
 const editAddress = (address: Address) => {
   editingAddress.value = address
   addressForm.value = {
-    name: address.name,
+    receiverName: address.receiverName,
     phone: address.phone,
     province: address.province,
     city: address.city,
@@ -239,7 +239,7 @@ const saveAddress = async () => {
 
   try {
     const data = {
-      name: addressForm.value.name,
+      receiverName: addressForm.value.receiverName,
       phone: addressForm.value.phone,
       province: addressForm.value.province || '未选择',
       city: addressForm.value.city || '未选择',
@@ -268,7 +268,7 @@ const saveAddress = async () => {
 // 重置表单
 const resetForm = () => {
   addressForm.value = {
-    name: '',
+    receiverName: '',
     phone: '',
     province: '',
     city: '',

@@ -1,4 +1,5 @@
 import express, { Application } from 'express'
+import path from 'path'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
@@ -17,12 +18,13 @@ app.use(helmet())
 // CORS配置
 app.use(
   cors({
-    origin: process.env.NODE_ENV === 'production'
-      ? ['https://your-app.vercel.app', 'https://your-app-admin.vercel.app']
-      : '*',
+    origin: config.corsOrigin,
     credentials: true
   })
 )
+
+// 静态资源访问
+app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')))
 
 // 请求体解析
 app.use(express.json({ limit: '10mb' }))

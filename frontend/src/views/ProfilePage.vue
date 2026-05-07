@@ -1,22 +1,27 @@
 <template>
-  <div class="h-full overflow-y-auto overflow-x-hidden bg-gray-50">
-    <!-- 用户信息卡片 -->
-    <div class="bg-gradient-to-br from-orange-400 via-rose-400 to-pink-500 px-4 pt-12 pb-8">
-      <div class="flex items-center gap-4 mb-6">
+  <div class="h-full overflow-y-auto overflow-x-hidden bg-surface">
+    <!-- 用户信息卡片（使用生成的黑金质感背景图） -->
+    <div 
+      class="relative noise-bg px-4 pt-12 pb-10 overflow-hidden bg-cover bg-center"
+      :style="{ backgroundImage: `url(${profileBg})` }"
+    >
+      <!-- 遮罩层增强对比度 -->
+      <div class="absolute inset-0 bg-black/30"></div>
+      <div class="flex items-center gap-4 mb-6 relative z-10">
         <ImageWithFallback
-          :src="userInfo?.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop'"
+          :src="userInfo?.avatar || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop'"
           :alt="userInfo?.nickname || '用户'"
-          class-name="w-16 h-16 rounded-full object-cover border-4 border-white/30"
+          class-name="w-16 h-16 rounded-full object-cover border-4 border-white/20 shadow-lg"
         />
-        <div class="flex-1 text-white">
+        <div class="flex-1 text-white drop-shadow-md">
           <h2 class="text-xl font-bold mb-1">{{ userInfo?.nickname || '未登录' }}</h2>
           <p class="text-sm text-white/80">{{ memberLevelText }}</p>
         </div>
-        <ChevronRight class="w-6 h-6 text-white" />
+        <ChevronRight class="w-6 h-6 text-white/70" />
       </div>
 
-      <!-- 会员卡片 -->
-      <div class="bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/20">
+      <!-- 会员卡片 (黑金质感) -->
+      <div class="relative z-10 bg-gradient-to-r from-[#2C2C2C] to-[#1A1A1A] backdrop-blur rounded-2xl p-5 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
         <div class="flex items-center justify-around text-white">
           <div class="text-center">
             <p class="text-sm mb-1 text-white/80">会员积分</p>
@@ -31,7 +36,7 @@
     </div>
 
     <!-- 订单追踪卡片 -->
-    <div class="bg-white mx-4 -mt-4 rounded-2xl p-4 shadow-lg border border-gray-100 mb-3">
+    <div class="bg-white mx-4 -mt-4 rounded-card p-4 shadow-card border border-primary-100 mb-3">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold">我的订单</h3>
         <button
@@ -52,18 +57,18 @@
             <component :is="getIcon(item.iconName)" :class="['w-6 h-6', item.color]" />
             <div
               v-if="item.count > 0"
-              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center"
+              class="absolute -top-1 -right-1 bg-danger text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold"
             >
               {{ item.count }}
             </div>
           </div>
-          <span class="text-xs text-gray-700">{{ item.label }}</span>
+          <span class="text-xs text-ink-muted">{{ item.label }}</span>
         </button>
       </div>
     </div>
 
     <!-- 资产卡片 -->
-    <div class="bg-white mx-4 rounded-2xl p-4 mb-3">
+    <div class="bg-white mx-4 rounded-card p-4 mb-3">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold">我的资产</h3>
       </div>
@@ -72,21 +77,21 @@
           v-for="(item, index) in assetItems"
           :key="index"
           @click="handleAssetClick(item.label)"
-          class="flex flex-col items-center gap-2 p-3 rounded-xl bg-gray-50 active:bg-gray-100 transition-colors"
+          class="flex flex-col items-center gap-2 p-3 rounded-xl bg-surface-muted hover:bg-primary-50 transition-colors cursor-pointer press-effect"
         >
           <div :class="['bg-gradient-to-br', item.gradient, 'w-10 h-10 rounded-full flex items-center justify-center']">
             <component :is="getIcon(item.iconName)" class="w-5 h-5 text-white" />
           </div>
-          <span class="text-xs text-gray-700">{{ item.label }}</span>
-          <span class="text-xs text-gray-900 font-medium">{{ item.value }}</span>
+          <span class="text-xs text-ink-muted">{{ item.label }}</span>
+          <span class="text-xs text-ink font-semibold">{{ item.value }}</span>
         </button>
       </div>
     </div>
 
     <!-- 功能菜单 -->
-    <div class="bg-white mx-4 rounded-2xl mb-3 overflow-hidden">
+    <div class="bg-white mx-4 rounded-card mb-3 overflow-hidden">
       <div class="px-4 pt-4 pb-2">
-        <h3 class="text-sm text-gray-500">常用功能</h3>
+        <h3 class="text-sm text-ink-muted">常用功能</h3>
       </div>
       <div>
         <button
@@ -94,19 +99,19 @@
           :key="index"
           @click="handleMenuClick(item)"
           :class="[
-            'w-full flex items-center gap-3 px-4 py-4 active:bg-gray-50 transition-colors',
-            index !== menuItems.length - 1 ? 'border-b border-gray-100' : ''
+            'w-full flex items-center gap-3 px-4 py-4 active:bg-surface-muted transition-colors cursor-pointer',
+            index !== menuItems.length - 1 ? 'border-b border-surface-muted' : ''
           ]"
         >
           <component :is="getIcon(item.iconName)" :class="['w-5 h-5', item.color]" />
           <span class="flex-1 text-left">{{ item.label }}</span>
           <span
             v-if="item.badge"
-            class="bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+            class="bg-danger text-white text-xs px-2 py-1 rounded-pill"
           >
             {{ item.badge }}
           </span>
-          <ChevronRight class="w-5 h-5 text-gray-400" />
+          <ChevronRight class="w-5 h-5 text-ink-muted" />
         </button>
       </div>
     </div>
@@ -136,14 +141,14 @@ import {
 import { ElMessage } from 'element-plus'
 import ImageWithFallback from '@/components/ImageWithFallback.vue'
 import type { OrderStatus, AssetItem, MenuItem } from '@/types'
-import { getUserProfile } from '@/api/user'
+import { getFavorites, getUserProfile } from '@/api/user'
 import { getOrders } from '@/api/order'
 import { getMyCoupons } from '@/api/coupon'
-import { getFavorites } from '@/api/user'
+import profileBg from '@/assets/images/profile_bg.png'
 
 const router = useRouter()
 const userInfo = ref<any>(null)
-const orderCounts = ref({ PENDING_PAYMENT: 0, PENDING_SHIPMENT: 0, PENDING_RECEIVE: 0, PENDING_REVIEW: 0, REFUNDING: 0 })
+const orderCounts = ref({ PENDING_PAYMENT: 0, PENDING_SHIP: 0, PENDING_RECEIVE: 0, PENDING_REVIEW: 0, REFUNDING: 0 })
 const couponCount = ref(0)
 const favoriteCount = ref(0)
 
@@ -159,7 +164,7 @@ const loadUserProfile = async () => {
 
 const loadOrderStats = async () => {
   try {
-    const statuses = ['PENDING_PAYMENT', 'PENDING_SHIPMENT', 'PENDING_RECEIVE', 'PENDING_REVIEW', 'REFUNDING']
+    const statuses = ['PENDING_PAYMENT', 'PENDING_SHIP', 'PENDING_RECEIVE', 'PENDING_REVIEW', 'REFUNDING']
     for (const status of statuses) {
       const data = await getOrders(status, 1, 1)
       orderCounts.value[status as keyof typeof orderCounts.value] = data.pagination.total
@@ -191,7 +196,7 @@ const loadFavoriteCount = async () => {
 const handleOrderClick = (label: string) => {
   const statusMap: Record<string, string> = {
     '待付款': 'PENDING_PAYMENT',
-    '待发货': 'PENDING_SHIPMENT',
+    '待发货': 'PENDING_SHIP',
     '待收货': 'PENDING_RECEIVE',
     '待评价': 'PENDING_REVIEW',
     '退换货': 'REFUNDING'
@@ -237,19 +242,21 @@ const handleMenuClick = (item: MenuItem) => {
   }
 }
 
+/* 订单状态图标颜色对齐品牌令牌 */
 const orderStatusItems = computed<OrderStatus[]>(() => [
-  { iconName: 'Wallet', label: '待付款', count: orderCounts.value.PENDING_PAYMENT, color: 'text-orange-500' },
-  { iconName: 'Package', label: '待发货', count: orderCounts.value.PENDING_SHIPMENT, color: 'text-blue-500' },
-  { iconName: 'Truck', label: '待收货', count: orderCounts.value.PENDING_RECEIVE, color: 'text-green-500' },
-  { iconName: 'CheckCircle', label: '待评价', count: orderCounts.value.PENDING_REVIEW, color: 'text-yellow-500' },
-  { iconName: 'RotateCcw', label: '退换货', count: orderCounts.value.REFUNDING, color: 'text-red-500' },
+  { iconName: 'Wallet',      label: '待付款', count: orderCounts.value.PENDING_PAYMENT,  color: 'text-accent' },
+  { iconName: 'Package',     label: '待发货', count: orderCounts.value.PENDING_SHIP, color: 'text-primary' },
+  { iconName: 'Truck',       label: '待收货', count: orderCounts.value.PENDING_RECEIVE,  color: 'text-success' },
+  { iconName: 'CheckCircle', label: '待评价', count: orderCounts.value.PENDING_REVIEW,   color: 'text-accent' },
+  { iconName: 'RotateCcw',   label: '退换货', count: orderCounts.value.REFUNDING,         color: 'text-danger' },
 ])
 
+/* 资产卡渐变改用品牌渐变色系 */
 const assetItems = computed<AssetItem[]>(() => [
-  { iconName: 'Wallet', label: '余额', value: `¥${userInfo.value?.balance || '0'}`, gradient: 'from-orange-400 to-orange-500' },
-  { iconName: 'Tag', label: '优惠券', value: `${couponCount.value}张`, gradient: 'from-red-400 to-red-500' },
-  { iconName: 'Heart', label: '收藏', value: String(favoriteCount.value), gradient: 'from-pink-400 to-pink-500' },
-  { iconName: 'Clock', label: '积分', value: String(userInfo.value?.points || 0), gradient: 'from-blue-400 to-blue-500' },
+  { iconName: 'Wallet', label: '余额',  value: `¥${userInfo.value?.balance || '0'}`, gradient: 'from-primary to-accent' },
+  { iconName: 'Tag',    label: '优惠券', value: `${couponCount.value}张`,            gradient: 'from-danger to-primary-light' },
+  { iconName: 'Heart',  label: '收藏',  value: String(favoriteCount.value),          gradient: 'from-accent to-accent-light' },
+  { iconName: 'Clock',  label: '积分',  value: String(userInfo.value?.points || 0),  gradient: 'from-ink-soft to-ink' },
 ])
 
 const menuItems: MenuItem[] = [

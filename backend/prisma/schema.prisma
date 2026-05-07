@@ -40,6 +40,7 @@ model User {
   postLikes      PostLike[]
   coupons        UserCoupon[]
   refunds        Refund[]
+  liveStreams    LiveStream[]    // 作为主播开的直播间
   followers      Follow[]        @relation("UserFollowers") // 我的粉丝
   followings     Follow[]        @relation("UserFollowings") // 我关注的人
   commentReplies Comment[]       @relation("CommentReplyTo") // 被回复的评论
@@ -173,6 +174,7 @@ model Product {
   browseHistory BrowseHistory[]
   postProducts  PostProduct[]
   rankings      Ranking[]
+  liveProducts  LiveProduct[]
 
   @@index([categoryId])
   @@index([status])
@@ -598,4 +600,53 @@ model Follow {
   @@index([followerId])
   @@index([followingId])
   @@map("follows")
+}
+
+// ==================== 直播模块 ====================
+
+// 直播间表
+model LiveStream {
+  id           String           @id @default(uuid())
+  anchorId     String           // 主播ID(关联User)
+  title        String           @db.VarChar(200)
+  cover        String           @db.VarChar(500)
+  viewers      Int              @default(0)
+  tags         String[]         // 标签
+  status       LiveStreamStatus @default(LIVE)
+  startTime    DateTime?
+  endTime      DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  // 关联
+  anchor       User             @relation(fields: [anchorId], references: [id])
+  products     LiveProduct[]
+
+  @@index([status])
+  @@index([anchorId])
+  @@map("live_streams")
+}
+
+// 直播状态
+enum LiveStreamStatus {
+  PREPARING // 准备中
+  LIVE      // 直播中
+  ENDED     // 已结束
+}
+
+// 直播间商品关联表
+model LiveProduct {
+  id           String     @id @default(uuid())
+  liveStreamId String
+  productId    String
+  sort         Int        @default(0)
+  createdAt    DateTime   @default(now())
+
+  // 关联
+  liveStream   LiveStream @relation(fields: [liveStreamId], references: [id], onDelete: Cascade)
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([liveStreamId, productId])
+  @@index([liveStreamId])
+  @@map("live_products")
 }

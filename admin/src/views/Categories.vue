@@ -17,19 +17,21 @@
         <el-table-column label="图标" width="100">
           <template #default="{ row }">
             <el-image
-              v-if="row.icon"
+              v-if="row.icon && row.icon.startsWith('http')"
               :src="row.icon"
               :preview-src-list="[row.icon]"
               fit="cover"
-              style="width: 48px; height: 48px; border-radius: 8px"
+              style="width: 40px; height: 40px; border-radius: 8px"
             >
               <template #error>
-                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f5f7fa; border-radius: 8px; font-size: 24px;">
-                  📦
+                <div class="category-icon-placeholder" :style="{ backgroundColor: getCategoryColor(row.name) }">
+                  {{ row.name.charAt(0) }}
                 </div>
               </template>
             </el-image>
-            <span v-else style="font-size: 24px;">📦</span>
+            <div v-else class="category-icon-placeholder" :style="{ backgroundColor: getCategoryColor(row.name) }">
+              {{ row.icon || row.name.charAt(0) }}
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="name" label="分类名称" min-width="200" />
@@ -40,7 +42,7 @@
         </el-table-column>
         <el-table-column label="排序" width="100">
           <template #default="{ row }">
-            {{ row.sortOrder }}
+            {{ row.sort }}
           </template>
         </el-table-column>
         <el-table-column label="状态" width="100">
@@ -94,8 +96,8 @@
             <el-image :src="formData.icon" fit="cover" />
           </div>
         </el-form-item>
-        <el-form-item label="排序" prop="sortOrder">
-          <el-input-number v-model="formData.sortOrder" :min="0" :max="9999" />
+        <el-form-item label="排序" prop="sort">
+          <el-input-number v-model="formData.sort" :min="0" :max="9999" />
           <el-text type="info" size="small" style="margin-left: 10px">数字越小越靠前</el-text>
         </el-form-item>
         <el-form-item label="状态" prop="status">
@@ -126,7 +128,7 @@ interface Category {
   name: string
   icon: string
   parentId: string | null
-  sortOrder: number
+  sort: number
   status: string
   productCount: number
   createdAt: string
@@ -146,7 +148,7 @@ const formData = reactive({
   name: '',
   icon: '',
   parentId: '',
-  sortOrder: 0,
+  sort: 0,
   status: 'ACTIVE'
 })
 
@@ -200,9 +202,9 @@ const buildTree = (list: Category[]): Category[] => {
     }
   })
 
-  // 按sortOrder排序
+  // 按sort排序
   const sortTree = (nodes: Category[]) => {
-    nodes.sort((a, b) => a.sortOrder - b.sortOrder)
+    nodes.sort((a, b) => a.sort - b.sort)
     nodes.forEach(node => {
       if (node.children && node.children.length > 0) {
         sortTree(node.children)
@@ -221,7 +223,7 @@ const handleEdit = (category: Category) => {
   formData.name = category.name
   formData.icon = category.icon
   formData.parentId = category.parentId || ''
-  formData.sortOrder = category.sortOrder
+  formData.sort = category.sort
   formData.status = category.status
   showAddDialog.value = true
 }
@@ -247,7 +249,7 @@ const handleSubmit = async () => {
         name: formData.name,
         icon: formData.icon || undefined,
         parentId: formData.parentId || undefined,
-        sortOrder: formData.sortOrder,
+        sort: formData.sort,
         status: formData.status
       }
 
@@ -278,7 +280,7 @@ const handleStatusChange = async (category: Category) => {
       name: category.name,
       icon: category.icon,
       parentId: category.parentId,
-      sortOrder: category.sortOrder,
+      sort: category.sort,
       status: newStatus
     })
     category.status = newStatus
@@ -316,7 +318,7 @@ const resetForm = () => {
   formData.name = ''
   formData.icon = ''
   formData.parentId = ''
-  formData.sortOrder = 0
+  formData.sort = 0
   formData.status = 'ACTIVE'
   formRef.value?.resetFields()
 }
@@ -324,6 +326,19 @@ const resetForm = () => {
 // 格式化日期
 const formatDate = (date: string) => {
   return new Date(date).toLocaleString('zh-CN')
+}
+
+// 获取分类颜色
+const getCategoryColor = (name: string) => {
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', 
+    '#F06292', '#AED581', '#FFD54F', '#4DB6AC', '#7986CB'
+  ]
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return colors[Math.abs(hash) % colors.length]
 }
 
 onMounted(() => {
@@ -367,5 +382,18 @@ onMounted(() => {
 .icon-preview :deep(.el-image) {
   width: 100%;
   height: 100%;
+}
+
+.category-icon-placeholder {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 </style>

@@ -9,7 +9,9 @@ import postRoutes from './post.routes'
 import couponRoutes from './coupon.routes'
 import rankingRoutes from './ranking.routes'
 import bannerRoutes from './banner.routes'
+import uploadRoutes from './upload.routes'
 import seedRoutes from './seed.routes'
+import liveStreamRoutes from './livestream.routes'
 
 const router = Router()
 
@@ -42,6 +44,12 @@ router.use('/banners', bannerRoutes)
 
 // 排行榜路由
 router.use('/rankings', rankingRoutes)
+
+// 上传路由
+router.use('/upload', uploadRoutes)
+
+// 直播路由
+router.use('/livestreams', liveStreamRoutes)
 
 // 管理后台路由
 router.use('/admin', adminRoutes)

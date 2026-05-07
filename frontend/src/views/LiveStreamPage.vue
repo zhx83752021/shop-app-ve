@@ -14,7 +14,7 @@
         v-for="stream in liveStreams"
         :key="stream.id"
         class="stream-card"
-        @click="enterLiveRoom(stream.id)"
+        @click="enterRoom(stream)"
       >
         <div class="stream-cover">
           <ImageWithFallback
@@ -34,11 +34,11 @@
         <div class="stream-info">
           <div class="anchor-info">
             <ImageWithFallback
-              :src="stream.anchorAvatar"
-              :alt="stream.anchorName"
+              :src="stream.anchor.avatar"
+              :alt="stream.anchor.nickname"
               class-name="anchor-avatar"
             />
-            <span class="anchor-name">{{ stream.anchorName }}</span>
+            <span class="anchor-name">{{ stream.anchor.nickname }}</span>
           </div>
           <h3 class="stream-title">{{ stream.title }}</h3>
           <div class="stream-tags">
@@ -69,75 +69,13 @@ import { useRouter } from 'vue-router'
 import { ArrowLeft, Users } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus'
 import ImageWithFallback from '@/components/ImageWithFallback.vue'
+import { getLiveStreams } from '@/api/livestream'
+import type { LiveStream } from '@/api/livestream'
 
 const router = useRouter()
 
-interface LiveStream {
-  id: string
-  title: string
-  cover: string
-  anchorName: string
-  anchorAvatar: string
-  viewers: number
-  tags: string[]
-}
-
-const liveStreams = ref<LiveStream[]>([
-  {
-    id: '1',
-    title: '【限时抢购】Apple iPhone 15 Pro 超值优惠',
-    cover: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=400&h=300&fit=crop',
-    anchorName: '科技数码精选',
-    anchorAvatar: 'https://ui-avatars.com/api/?name=Tech&background=667eea&color=fff',
-    viewers: 12580,
-    tags: ['数码', '限时优惠', '热卖']
-  },
-  {
-    id: '2',
-    title: '美妆护肤专场 大牌好物直降',
-    cover: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=300&fit=crop',
-    anchorName: '美妆小姐姐',
-    anchorAvatar: 'https://ui-avatars.com/api/?name=Beauty&background=f093fb&color=fff',
-    viewers: 8763,
-    tags: ['美妆', '护肤', '新品']
-  },
-  {
-    id: '3',
-    title: 'Nike运动鞋专场 全场5折起',
-    cover: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop',
-    anchorName: '运动达人',
-    anchorAvatar: 'https://ui-avatars.com/api/?name=Sports&background=4ADE80&color=fff',
-    viewers: 15420,
-    tags: ['运动', '服饰', '折扣']
-  },
-  {
-    id: '4',
-    title: '家电节能补贴 爆款直降千元',
-    cover: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-    anchorName: '家电小管家',
-    anchorAvatar: 'https://ui-avatars.com/api/?name=Home&background=3B9BFF&color=fff',
-    viewers: 6234,
-    tags: ['家电', '节能', '补贴']
-  },
-  {
-    id: '5',
-    title: '食品生鲜 新鲜直达 限时秒杀',
-    cover: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop',
-    anchorName: '生鲜小哥',
-    anchorAvatar: 'https://ui-avatars.com/api/?name=Food&background=FFD93D&color=333',
-    viewers: 9876,
-    tags: ['生鲜', '食品', '秒杀']
-  },
-  {
-    id: '6',
-    title: '母婴用品专场 品质好货',
-    cover: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&h=300&fit=crop',
-    anchorName: '辣妈团长',
-    anchorAvatar: 'https://ui-avatars.com/api/?name=Baby&background=FB7185&color=fff',
-    viewers: 5678,
-    tags: ['母婴', '用品', '品质']
-  }
-])
+const liveStreams = ref<LiveStream[]>([])
+const loading = ref(false)
 
 const formatViewers = (count: number): string => {
   if (count >= 10000) {
@@ -146,12 +84,81 @@ const formatViewers = (count: number): string => {
   return count.toString()
 }
 
-const enterLiveRoom = (id: string) => {
-  ElMessage.info('直播间功能开发中，敬请期待')
+const enterRoom = (stream: any) => {
+  router.push(`/live-stream/${stream.id}`)
+}
+
+const loadStreams = async () => {
+  try {
+    loading.value = true
+    const response = await getLiveStreams({ page: 1, pageSize: 20, status: 'LIVE' })
+    const items = response.items || []
+    
+    if (items.length === 0) {
+      // 模拟数据供演示
+      liveStreams.value = [
+        {
+          id: '1',
+          title: 'iPhone 15 Pro 系列直播特惠',
+          cover: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+          viewers: 23500,
+          anchor: { nickname: '数码达人阿强', avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100' },
+          tags: ['数码', '特惠']
+        },
+        {
+          id: '2',
+          title: '美妆护肤专场 大牌买一送一',
+          cover: 'https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+          viewers: 18200,
+          anchor: { nickname: '美妆天后琳达', avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100' },
+          tags: ['美妆', '正品']
+        },
+        {
+          id: '3',
+          title: '潮流运动鞋 限量联名首发',
+          cover: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+          viewers: 35000,
+          anchor: { nickname: '潮流合伙人', avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100' },
+          tags: ['潮鞋', '首发']
+        },
+        {
+          id: '4',
+          title: '精致家居好物 提升生活幸福感',
+          cover: 'https://images.pexels.com/photos/3825540/pexels-photo-3825540.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+          viewers: 12000,
+          anchor: { nickname: '家居设计师小雅', avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100' },
+          tags: ['家居', '美学']
+        },
+        {
+          id: '5',
+          title: '夏日穿搭专场 显瘦显高不二之选',
+          cover: 'https://images.pexels.com/photos/1036623/pexels-photo-1036623.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+          viewers: 28000,
+          anchor: { nickname: '穿搭博主可儿', avatar: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=100' },
+          tags: ['时尚', '穿搭']
+        },
+        {
+          id: '6',
+          title: '智能办公利器 效率提升秘籍',
+          cover: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+          viewers: 9500,
+          anchor: { nickname: '效率专家雷蒙', avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100' },
+          tags: ['办公', '效率']
+        }
+      ] as any
+    } else {
+      liveStreams.value = items
+    }
+  } catch (error) {
+    console.error('Failed to load live streams', error)
+    ElMessage.error('加载直播列表失败')
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => {
-  // 可以在这里加载直播列表
+  loadStreams()
 })
 </script>
 
@@ -165,23 +172,25 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: white;
+  color: #1A1A2E;
   position: sticky;
   top: 0;
   z-index: 10;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .back-btn {
   background: none;
   border: none;
   cursor: pointer;
-  color: white;
+  color: #1A1A2E;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .live-streams {
@@ -330,13 +339,5 @@ onMounted(() => {
   margin-top: 8px;
 }
 
-@media (max-width: 640px) {
-  .live-streams {
-    grid-template-columns: 1fr;
-  }
 
-  .stream-cover {
-    height: 200px;
-  }
-}
 </style>

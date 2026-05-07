@@ -230,7 +230,7 @@ const handleSubmit = async () => {
       submitting.value = true
       const payload = {
         name: formData.name,
-        discountAmount: formData.discountAmount,
+        amount: formData.discountAmount,
         minAmount: formData.minAmount,
         totalCount: formData.totalCount,
         startTime: formData.dateRange[0].toISOString(),

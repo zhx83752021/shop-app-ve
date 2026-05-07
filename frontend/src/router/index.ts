@@ -76,6 +76,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/LiveStreamPage.vue'),
   },
   {
+    path: '/live-stream/:id',
+    name: 'LiveStreamRoom',
+    component: () => import('@/views/LiveStreamRoom.vue'),
+  },
+  {
     path: '/membership',
     name: 'Membership',
     component: () => import('@/views/MembershipPage.vue'),
@@ -104,6 +109,21 @@ const routes: RouteRecordRaw[] = [
     path: '/contact-service',
     name: 'ContactService',
     component: () => import('@/views/ContactServicePage.vue'),
+  },
+  {
+    path: '/orders',
+    name: 'OrderList',
+    component: () => import('@/views/OrderListPage.vue'),
+  },
+  {
+    path: '/checkout',
+    name: 'Checkout',
+    component: () => import('@/views/CheckoutPage.vue'),
+  },
+  {
+    path: '/order/:id',
+    name: 'OrderDetail',
+    component: () => import('@/views/OrderListPage.vue'), // 暂时复用列表或后续开发详情页
   },
   {
     path: '/customer-chat',

@@ -52,29 +52,43 @@ export class AdminService {
    * Dashboard统计数据
    */
   static async getDashboardStats() {
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+
     const [
       totalUsers,
       totalProducts,
       totalOrders,
       todayOrders,
-      totalRevenue,
-      pendingRefunds
+      todaySales,
+      pendingShipment,
+      pendingRefunds,
+      pendingReview,
+      recentOrders
     ] = await Promise.all([
       prisma.user.count(),
       prisma.product.count({ where: { status: 'ACTIVE' } }),
       prisma.order.count(),
       prisma.order.count({
-        where: {
-          createdAt: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0))
-          }
-        }
+        where: { createdAt: { gte: todayStart } }
       }),
       prisma.order.aggregate({
-        where: { status: { in: ['COMPLETED', 'SHIPPED'] } },
+        where: {
+          status: { in: ['COMPLETED', 'SHIPPED'] },
+          createdAt: { gte: todayStart }
+        },
         _sum: { actualAmount: true }
       }),
-      prisma.refund.count({ where: { status: 'PENDING' } })
+      prisma.order.count({ where: { status: 'PENDING_SHIP' } }),
+      prisma.refund.count({ where: { status: 'PENDING' } }),
+      prisma.post.count({ where: { status: 'PENDING' } }),
+      prisma.order.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: { select: { nickname: true } }
+        }
+      })
     ])
 
     return {
@@ -82,8 +96,18 @@ export class AdminService {
       totalProducts,
       totalOrders,
       todayOrders,
-      totalRevenue: totalRevenue._sum.actualAmount?.toString() || '0',
-      pendingRefunds
+      todaySales: todaySales._sum.actualAmount?.toString() || '0',
+      pendingShipment,
+      pendingRefunds,
+      pendingReview,
+      recentOrders: recentOrders.map(o => ({
+        id: o.id,
+        orderNo: o.orderNo,
+        userName: o.user.nickname,
+        totalAmount: o.totalAmount.toString(),
+        status: o.status,
+        createdAt: o.createdAt
+      }))
     }
   }
 

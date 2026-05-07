@@ -5,6 +5,7 @@ export interface GetPostsParams {
   page?: number
   pageSize?: number
   type?: 'IMAGE' | 'VIDEO'
+  tab?: string
 }
 
 export interface PaginatedResponse<T> {

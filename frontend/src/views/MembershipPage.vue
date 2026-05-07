@@ -1,97 +1,135 @@
 <template>
-  <div class="page max-w-md mx-auto relative min-h-screen">
-    <div class="header">
-      <button @click="$router.back()" class="back-btn">
-        <ArrowLeft class="w-6 h-6" />
-      </button>
-      <h1 class="title">会员专属</h1>
-      <div class="w-6"></div>
-    </div>
-
-    <!-- 会员卡片 -->
-    <div class="member-card">
-      <div class="card-bg">
-        <div class="card-content">
-          <div class="member-level">
-            <Crown class="w-6 h-6" />
-            <span>黄金会员</span>
-          </div>
-          <div class="member-info">
-            <p class="member-name">{{ userInfo.nickname || '尊贵的会员' }}</p>
-            <p class="member-expire">有效期至 2025-12-31</p>
-          </div>
-          <div class="member-benefits">
-            <div class="benefit-item">
-              <span class="benefit-value">9.5折</span>
-              <span class="benefit-label">会员折扣</span>
-            </div>
-            <div class="benefit-item">
-              <span class="benefit-value">880</span>
-              <span class="benefit-label">积分</span>
-            </div>
-            <div class="benefit-item">
-              <span class="benefit-value">免运费</span>
-              <span class="benefit-label">包邮特权</span>
-            </div>
-          </div>
-        </div>
+  <div class="page max-w-md mx-auto relative min-h-screen bg-[#FDF8F5]">
+    <!-- 顶部视觉区 -->
+    <div class="relative h-64 overflow-hidden">
+      <img 
+        src="https://images.pexels.com/photos/1051073/pexels-photo-1051073.jpeg?auto=compress&cs=tinysrgb&w=800" 
+        class="w-full h-full object-cover"
+        alt="Membership Background"
+      />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#FDF8F5]"></div>
+      
+      <!-- 顶部导航 -->
+      <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
+        <button @click="$router.back()" class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+          <ArrowLeft class="w-6 h-6" />
+        </button>
+        <h1 class="text-white font-display font-bold text-lg">会员中心</h1>
+        <div class="w-10"></div>
       </div>
     </div>
 
-    <!-- 会员特权 -->
-    <div class="section">
-      <h2 class="section-title">会员特权</h2>
-      <div class="privileges-grid">
+    <!-- 会员卡片 (悬浮感) -->
+    <div class="px-5 -mt-32 relative z-20">
+      <div class="member-card-glass p-6 rounded-[2.5rem] shadow-2xl overflow-hidden relative border border-white/30 backdrop-blur-xl">
+        <div class="relative z-10">
+          <div class="flex justify-between items-start mb-8">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FFD700] to-[#FFA500] flex items-center justify-center shadow-lg">
+                <Crown class="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-ink-muted/60 block">Black Card</span>
+                <span class="text-lg font-display font-bold text-ink">黑金尊享会员</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] font-bold text-ink-muted uppercase tracking-tighter opacity-50">Score</p>
+              <p class="text-xl font-display font-bold text-primary">8,240</p>
+            </div>
+          </div>
+
+          <div class="mb-8">
+            <p class="text-2xl font-display font-bold text-ink tracking-tight">{{ userInfo.nickname || '尊贵的会员' }}</p>
+            <p class="text-[10px] text-ink-muted font-medium mt-1 uppercase tracking-widest opacity-60">Valid Until Dec 31, 2025</p>
+          </div>
+
+          <div class="flex justify-between items-center bg-black/5 rounded-2xl p-4 border border-black/[0.03]">
+            <div class="benefit-mini">
+              <p class="text-sm font-bold text-ink">9.5折</p>
+              <p class="text-[9px] text-ink-muted font-medium">EXCLUSIVE</p>
+            </div>
+            <div class="w-px h-6 bg-black/10"></div>
+            <div class="benefit-mini">
+              <p class="text-sm font-bold text-ink">128.0</p>
+              <p class="text-[9px] text-ink-muted font-medium">REWARD ¥</p>
+            </div>
+            <div class="w-px h-6 bg-black/10"></div>
+            <div class="benefit-mini">
+              <p class="text-sm font-bold text-ink">免运费</p>
+              <p class="text-[9px] text-ink-muted font-medium">FREE SHIP</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 卡片背景装饰 -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-accent/5 rounded-full blur-2xl -ml-5 -mb-5"></div>
+      </div>
+    </div>
+
+    <!-- 会员权益 (Editorial Grid) -->
+    <div class="mt-8 px-5">
+      <div class="flex items-baseline justify-between mb-6">
+        <h2 class="font-display font-bold text-xl text-ink">会员特权</h2>
+        <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Your Benefits</span>
+      </div>
+      
+      <div class="grid grid-cols-3 gap-3">
         <div
           v-for="privilege in privileges"
           :key="privilege.id"
-          class="privilege-card"
+          class="bg-white rounded-3xl p-4 flex flex-col items-center text-center shadow-sm border border-black/[0.02]"
         >
-          <component :is="privilege.icon" class="privilege-icon" />
-          <p class="privilege-name">{{ privilege.name }}</p>
-          <p class="privilege-desc">{{ privilege.desc }}</p>
+          <div class="w-10 h-10 rounded-2xl bg-[#F8F9FA] flex items-center justify-center mb-3">
+            <component :is="privilege.icon" class="w-5 h-5 text-ink opacity-70" />
+          </div>
+          <p class="text-xs font-bold text-ink mb-1">{{ privilege.name }}</p>
+          <p class="text-[10px] text-ink-muted leading-tight">{{ privilege.desc }}</p>
         </div>
       </div>
     </div>
 
-    <!-- 专属商品 -->
-    <div class="section">
-      <div class="section-header">
-        <h2 class="section-title">专属商品</h2>
-        <button class="more-btn" @click="$router.push('/products?member=true')">
-          更多
-          <ChevronRight class="w-4 h-4" />
+    <!-- 专属商品 (Premium Cards) -->
+    <div class="mt-8 px-5 mb-24">
+      <div class="flex items-baseline justify-between mb-6">
+        <h2 class="font-display font-bold text-xl text-ink">黑金专供</h2>
+        <button class="text-xs text-ink-muted flex items-center gap-1 hover:text-primary transition-colors" @click="$router.push('/products?member=true')">
+          查看全部 <ChevronRight class="w-3.5 h-3.5" />
         </button>
       </div>
-      <div class="products-grid">
+
+      <div class="grid grid-cols-2 gap-4">
         <div
           v-for="product in memberProducts"
           :key="product.id"
-          class="product-card"
+          class="group cursor-pointer"
           @click="$router.push(`/product/${product.id}`)"
         >
-          <ImageWithFallback
-            :src="product.image"
-            :alt="product.title"
-            class-name="product-image"
-          />
-          <div class="member-badge">会员专享</div>
-          <div class="product-info">
-            <h3 class="product-title">{{ product.title }}</h3>
-            <div class="product-price">
-              <span class="current-price">¥{{ product.memberPrice }}</span>
-              <span class="original-price">¥{{ product.price }}</span>
+          <div class="relative aspect-[4/5] rounded-[2rem] overflow-hidden mb-3">
+            <ImageWithFallback
+              :src="product.image"
+              :alt="product.title"
+              class-name="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+            <div class="absolute top-3 right-3 bg-ink/80 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full">
+              MEMBER ONLY
             </div>
+          </div>
+          <h3 class="text-xs font-bold text-ink line-clamp-1 mb-1">{{ product.title }}</h3>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-display font-bold text-primary">¥{{ product.memberPrice }}</span>
+            <span class="text-[10px] text-ink-muted line-through opacity-50">¥{{ product.price }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 升级会员 -->
-    <div class="upgrade-section">
-      <button class="upgrade-btn" @click="showUpgradeDialog = true">
-        <Zap class="w-5 h-5" />
-        升级至白金会员
+    <!-- 升级提示 (Floating CTA) -->
+    <div class="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#FDF8F5] via-[#FDF8F5]/90 to-transparent z-30">
+      <button class="w-full h-14 bg-ink rounded-2xl text-white font-bold flex items-center justify-center gap-2 shadow-xl shadow-ink/20 press-effect" @click="showUpgradeDialog = true">
+        <Zap class="w-5 h-5 text-[#FFD700]" />
+        升级至白金会员 · 获更多权益
       </button>
     </div>
   </div>
@@ -121,28 +159,28 @@ const memberProducts = ref([
   {
     id: '1',
     title: 'Apple AirPods Pro 2代',
-    image: 'https://placehold.co/300x300/667eea/FFF?text=AirPods+Pro',
+    image: 'https://images.pexels.com/photos/3780681/pexels-photo-3780681.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
     price: 1999,
     memberPrice: 1899
   },
   {
     id: '2',
     title: 'Nike Air Max 270',
-    image: 'https://placehold.co/300x300/4ADE80/FFF?text=Nike+Air+Max',
+    image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
     price: 1299,
     memberPrice: 1199
   },
   {
     id: '3',
     title: 'Dyson吹风机',
-    image: 'https://placehold.co/300x300/3B9BFF/FFF?text=Dyson',
+    image: 'https://images.pexels.com/photos/3993306/pexels-photo-3993306.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
     price: 2990,
     memberPrice: 2690
   },
   {
     id: '4',
     title: 'SK-II神仙水',
-    image: 'https://placehold.co/300x300/f093fb/FFF?text=SK-II',
+    image: 'https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
     price: 1590,
     memberPrice: 1390
   }
@@ -151,244 +189,34 @@ const memberProducts = ref([
 
 <style scoped>
 .page {
-  background: #f5f5f5;
-  padding-bottom: 80px;
+  font-family: 'Inter', sans-serif;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+.member-card-glass {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-.back-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: white;
-}
-
-.title {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.member-card {
-  margin: 16px;
-}
-
-.card-bg {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  border-radius: 16px;
-  padding: 24px;
-  color: white;
-  box-shadow: 0 8px 24px rgba(245, 87, 108, 0.3);
-}
-
-.member-level {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-
-.member-info {
-  margin-bottom: 20px;
-}
-
-.member-name {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.member-expire {
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-.member-benefits {
-  display: flex;
-  justify-content: space-around;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.benefit-item {
+.benefit-mini {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  flex: 1;
 }
 
-.benefit-value {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.benefit-label {
-  font-size: 11px;
+.press-effect:active {
+  transform: scale(0.98);
   opacity: 0.9;
 }
 
-.section {
-  margin: 16px;
+/* 隐藏滚动条 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.more-btn {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  background: none;
-  border: none;
-  color: #666;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.privileges-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.privilege-card {
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-}
-
-.privilege-icon {
-  width: 32px;
-  height: 32px;
-  color: #f5576c;
-  margin: 0 auto 8px;
-}
-
-.privilege-name {
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.privilege-desc {
-  font-size: 11px;
-  color: #999;
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.product-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-}
-
-.product-image {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-}
-
-.member-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  font-size: 10px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.product-info {
-  padding: 12px;
-}
-
-.product-title {
-  font-size: 13px;
-  margin-bottom: 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.product-price {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.current-price {
-  color: #f5576c;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.original-price {
-  color: #999;
-  font-size: 12px;
-  text-decoration: line-through;
-}
-
-.upgrade-section {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 12px 16px;
-  background: white;
-  border-top: 1px solid #f0f0f0;
-  max-width: 448px;
-  margin: 0 auto;
-}
-
-.upgrade-btn {
-  width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.upgrade-btn:active {
-  transform: scale(0.98);
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 </style>

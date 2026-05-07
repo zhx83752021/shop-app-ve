@@ -32,7 +32,7 @@ export const changePasswordSchema = Joi.object({
  * 添加地址验证
  */
 export const addAddressSchema = Joi.object({
-  name: Joi.string().required().messages({
+  receiverName: Joi.string().required().messages({
     'any.required': '收货人姓名不能为空'
   }),
   phone: Joi.string()

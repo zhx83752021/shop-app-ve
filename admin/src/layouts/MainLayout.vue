@@ -108,47 +108,90 @@ onMounted(() => {
 <style scoped>
 .layout-container {
   height: 100vh;
+  background-color: #f6f8fa;
 }
 
 .aside {
-  background-color: #304156;
+  background-color: #1a1a1a;
   height: 100vh;
-  overflow-y: auto;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+  transition: all 0.3s;
 }
 
 .logo {
-  height: 60px;
+  height: 70px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding: 0 24px;
   color: #fff;
-  background-color: #2b3a4b;
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333;
 }
 
 .logo h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+:deep(.el-menu) {
+  border-right: none;
+  background-color: transparent !important;
+}
+
+:deep(.el-menu-item) {
+  height: 54px;
+  margin: 4px 12px;
+  border-radius: 8px;
+  color: #a0a0a0 !important;
+}
+
+:deep(.el-menu-item:hover) {
+  background-color: #333 !important;
+  color: #fff !important;
+}
+
+:deep(.el-menu-item.is-active) {
+  background-color: #409EFF !important;
+  color: #fff !important;
+  font-weight: 600;
 }
 
 .header {
-  background-color: #fff;
-  border-bottom: 1px solid #f0f0f0;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 24px;
+  height: 70px !important;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.user-info:hover {
+  background: #e5e7eb;
 }
 
 .main {
-  background-color: #f0f2f5;
-  padding: 20px;
+  background-color: #f6f8fa;
+  background-image: 
+    radial-gradient(#d1d5db 0.5px, transparent 0.5px);
+  background-size: 20px 20px;
+  padding: 24px;
   overflow-y: auto;
 }
 </style>

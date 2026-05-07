@@ -46,22 +46,56 @@
       />
     </el-card>
 
-    <el-dialog v-model="dialogVisible" title="商品信息" width="600px">
-      <el-form :model="form" label-width="80px">
-        <el-form-item label="商品名称">
-          <el-input v-model="form.title" />
+    <el-dialog v-model="dialogVisible" title="商品信息" width="700px">
+      <el-form :model="form" label-width="100px">
+        <el-form-item label="商品名称" required>
+          <el-input v-model="form.title" placeholder="请输入商品名称" />
         </el-form-item>
-        <el-form-item label="价格">
-          <el-input-number v-model="form.price" :min="0" :precision="2" />
+        <el-form-item label="所属分类" required>
+          <el-select v-model="form.categoryId" placeholder="请选择商品分类" style="width: 100%">
+            <el-option
+              v-for="cat in categories"
+              :key="cat.id"
+              :label="cat.name"
+              :value="cat.id"
+            />
+          </el-select>
         </el-form-item>
-        <el-form-item label="库存">
-          <el-input-number v-model="form.stock" :min="0" />
+        <el-form-item label="主图URL" required>
+          <el-input v-model="form.mainImage" placeholder="请输入商品主图链接" />
+          <div v-if="form.mainImage" class="image-preview">
+            <el-image :src="form.mainImage" fit="cover" />
+          </div>
         </el-form-item>
-        <el-form-item label="状态">
-          <el-radio-group v-model="form.status">
-            <el-radio label="ACTIVE">上架</el-radio>
-            <el-radio label="INACTIVE">下架</el-radio>
-          </el-radio-group>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="价格" required>
+              <el-input-number v-model="form.price" :min="0" :precision="2" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="划线价">
+              <el-input-number v-model="form.originalPrice" :min="0" :precision="2" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="库存" required>
+              <el-input-number v-model="form.stock" :min="0" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="状态">
+              <el-radio-group v-model="form.status">
+                <el-radio label="ACTIVE">上架</el-radio>
+                <el-radio label="INACTIVE">下架</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="商品描述">
+          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入商品详细描述" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -80,11 +114,22 @@ import { getProducts, createProduct, updateProduct, deleteProduct } from '@/api/
 
 const loading = ref(false)
 const products = ref([])
+const categories = ref([])
 const page = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
 const dialogVisible = ref(false)
-const form = ref({ id: '', title: '', price: 0, stock: 0, status: 'ACTIVE' })
+const form = ref({ 
+  id: '', 
+  title: '', 
+  categoryId: '',
+  mainImage: '',
+  price: 0, 
+  originalPrice: 0,
+  stock: 0, 
+  status: 'ACTIVE',
+  description: ''
+})
 
 const loadProducts = async () => {
   try {
@@ -97,6 +142,13 @@ const loadProducts = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const loadCategories = async () => {
+  try {
+    const data = await import('@/api/admin').then(m => m.getCategories())
+    categories.value = data
+  } catch (error) {}
 }
 
 const handleEdit = (row: any) => {
@@ -131,10 +183,23 @@ const handleDelete = async (id: string) => {
 
 onMounted(() => {
   loadProducts()
+  loadCategories()
 })
 </script>
 
 <style scoped>
-.page { padding: 20px; }
+.page { padding: 0; }
 .card-header { display: flex; justify-content: space-between; align-items: center; }
+.image-preview {
+  margin-top: 10px;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+.image-preview :deep(.el-image) {
+  width: 100%;
+  height: 100%;
+}
 </style>

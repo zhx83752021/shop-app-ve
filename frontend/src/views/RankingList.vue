@@ -19,55 +19,51 @@
       </button>
     </div>
 
-    <div class="ranking-list" v-if="!loading">
+    <div class="ranking-grid" v-if="!loading">
       <div
         v-for="(item, index) in rankings"
         :key="item.id"
-        class="ranking-item"
+        class="ranking-card"
         :style="{ animationDelay: `${index * 50}ms` }"
+        @click="$router.push(`/product/${item.id}`)"
       >
-        <div
-          @click="$router.push(`/product/${item.id}`)"
-          class="item-content"
-        >
-          <div :class="['rank-badge', `rank-${index + 1}`]">
-            {{ index + 1 }}
-          </div>
+        <div class="card-image-wrapper">
           <ImageWithFallback
             :src="item.image"
             :alt="item.title"
-            class-name="item-img"
+            class-name="card-img"
           />
-          <div class="item-info">
-            <h3 class="item-title">{{ item.title }}</h3>
-            <p class="item-desc">{{ item.description }}</p>
-            <div class="item-meta">
-              <span class="price">¥{{ item.price }}</span>
-              <span class="sales">已售{{ item.sales }}件</span>
-            </div>
+          <div :class="['rank-badge', `rank-${index + 1}`]">
+            {{ index + 1 }}
           </div>
-          <div class="trend">
-            <div class="trend-icon">
-              <TrendingUp v-if="item.trend === 'up'" class="w-4 h-4 text-red-500" />
-              <TrendingDown v-if="item.trend === 'down'" class="w-4 h-4 text-green-500" />
-              <Minus v-if="item.trend === 'unchanged'" class="w-4 h-4 text-gray-400" />
-            </div>
+          <!-- 趋势显示在角落 -->
+          <div class="card-trend">
+            <TrendingUp v-if="item.trend === 'up'" class="w-3 h-3 text-red-500" />
+            <TrendingDown v-if="item.trend === 'down'" class="w-3 h-3 text-green-500" />
             <span :class="['trend-text', {
               'text-red-500': item.trend === 'up',
               'text-green-500': item.trend === 'down',
               'text-gray-400': item.trend === 'unchanged'
             }]">
-              {{ item.trend === 'up' ? '上升' : item.trend === 'down' ? '下降' : '持平' }}
+              {{ item.trend === 'up' ? '↑' : item.trend === 'down' ? '↓' : '-' }}
             </span>
           </div>
         </div>
-        <button
-          @click.stop="addToCart(item.id)"
-          class="add-cart-btn"
-        >
-          <ShoppingCart class="w-4 h-4" />
-          加购
-        </button>
+        
+        <div class="card-info">
+          <h3 class="card-title">{{ item.title }}</h3>
+          <div class="card-meta">
+            <span class="card-price">¥{{ item.price }}</span>
+            <span class="card-sales">已售{{ item.sales }}</span>
+          </div>
+          <button
+            @click.stop="addToCart(item.id)"
+            class="card-add-btn"
+          >
+            <ShoppingCart class="w-3.5 h-3.5" />
+            加购
+          </button>
+        </div>
       </div>
     </div>
 
@@ -166,20 +162,24 @@ onMounted(() => {
   align-items: center;
   padding: 12px 16px;
   background: white;
+  color: #1A1A2E;
   position: sticky;
   top: 0;
   z-index: 10;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .back-btn {
   background: none;
   border: none;
   cursor: pointer;
+  color: #1A1A2E;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .tabs {
@@ -205,184 +205,144 @@ onMounted(() => {
   border-color: #ff4757;
 }
 
-.ranking-list {
-  padding: 16px;
+.ranking-grid {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
-.ranking-item {
+.ranking-card {
   background: white;
-  margin-bottom: 12px;
   border-radius: 12px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  animation: fadeIn 0.5s ease forwards;
+  opacity: 0;
+  transform: translateY(10px);
 }
 
-.item-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  cursor: pointer;
+.card-image-wrapper {
+  position: relative;
+  aspect-ratio: 1;
 }
 
-.item-content:active {
-  opacity: 0.7;
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .rank-badge {
-  width: 32px;
-  height: 32px;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: bold;
-  font-size: 16px;
-  flex-shrink: 0;
+  font-size: 13px;
+  z-index: 2;
 }
 
 .rank-1 {
-  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  background: #FFD700;
   color: #333;
 }
 
 .rank-2 {
-  background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+  background: #C0C0C0;
   color: #333;
 }
 
 .rank-3 {
-  background: linear-gradient(135deg, #cd7f32, #e8b87a);
+  background: #CD7F32;
   color: white;
 }
 
 .rank-badge:not(.rank-1):not(.rank-2):not(.rank-3) {
-  background: #f5f5f5;
-  color: #666;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  color: white;
 }
 
-.item-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.item-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.item-title {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.item-desc {
-  font-size: 12px;
-  color: #999;
-  margin-bottom: 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.item-meta {
+.card-trend {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255,255,255,0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  align-items: center;
+  gap: 2px;
+  z-index: 2;
 }
 
-.price {
-  font-size: 16px;
+.trend-text {
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.card-info {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+  height: 2.6em;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  margin-bottom: 8px;
+}
+
+.card-price {
+  font-size: 15px;
   font-weight: bold;
   color: #ff4757;
 }
 
-.sales {
-  font-size: 12px;
+.card-sales {
+  font-size: 11px;
   color: #999;
 }
 
-.trend {
-  flex-shrink: 0;
-}
-
-.add-cart-btn {
+.card-add-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  width: calc(100% - 24px);
-  margin: 0 12px 12px 12px;
-  padding: 10px;
+  gap: 4px;
+  width: 100%;
+  padding: 6px;
   background: #ff4757;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.add-cart-btn:active {
-  opacity: 0.8;
-}
-/* 加载状态样式 */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 0;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(255, 71, 87, 0.1);
-  border-radius: 50%;
-  border-top-color: #ff4757;
-  animation: spin 1s ease-in-out infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-text {
-  color: #666;
-  font-size: 14px;
-}
-
-/* 空状态样式 */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 0;
-  color: #999;
-}
-
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-/* 添加动画效果 */
-.ranking-item {
-  animation: fadeIn 0.5s ease forwards;
-  opacity: 0;
-  transform: translateY(20px);
 }
 
 @keyframes fadeIn {
@@ -390,20 +350,5 @@ onMounted(() => {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.trend {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.trend-icon {
-  margin-bottom: 4px;
-}
-
-.trend-text {
-  font-size: 12px;
-  white-space: nowrap;
 }
 </style>

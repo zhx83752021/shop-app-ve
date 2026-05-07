@@ -18,7 +18,7 @@
         <el-table-column prop="createdAt" label="创建时间" width="180" />
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="row.status === 'PENDING_SHIPMENT'" size="small" type="primary" @click="handleShip(row)">
+            <el-button v-if="row.status === 'PENDING_SHIP'" size="small" type="primary" @click="handleShip(row)">
               发货
             </el-button>
             <el-button size="small" @click="handleView(row)">查看</el-button>
@@ -105,10 +105,11 @@ const handleView = (row: any) => {
 const getStatusType = (status: string) => {
   const typeMap: any = {
     PENDING_PAYMENT: 'warning',
-    PENDING_SHIPMENT: 'primary',
-    PENDING_RECEIVE: 'info',
+    PENDING_SHIP: 'primary',
+    SHIPPED: 'info',
     COMPLETED: 'success',
-    CANCELLED: 'danger'
+    CLOSED: 'danger',
+    REFUNDING: 'warning'
   }
   return typeMap[status] || 'info'
 }
@@ -116,10 +117,11 @@ const getStatusType = (status: string) => {
 const getStatusText = (status: string) => {
   const textMap: any = {
     PENDING_PAYMENT: '待付款',
-    PENDING_SHIPMENT: '待发货',
-    PENDING_RECEIVE: '待收货',
+    PENDING_SHIP: '待发货',
+    SHIPPED: '已发货',
     COMPLETED: '已完成',
-    CANCELLED: '已取消'
+    CLOSED: '已关闭',
+    REFUNDING: '退款中'
   }
   return textMap[status] || status
 }
@@ -130,5 +132,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page { padding: 20px; }
+.page { padding: 0; }
 </style>

@@ -205,12 +205,12 @@ export class ProductService {
       }
     })
 
-    // TODO: 这里可以添加热门搜索关键词推荐
+    // 简单的搜索关键词生成逻辑
     const keywords = [
       `${keyword}`,
       `${keyword} 新款`,
-      `${keyword} 优惠`
-    ].slice(0, 3)
+      `${keyword} 特价`
+    ]
 
     return {
       keywords,

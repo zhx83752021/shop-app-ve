@@ -84,10 +84,11 @@ const pendingTasks = ref([
 const getStatusType = (status: string) => {
   const typeMap: any = {
     PENDING_PAYMENT: 'warning',
-    PENDING_SHIPMENT: 'primary',
-    PENDING_RECEIVE: 'info',
+    PENDING_SHIP: 'primary',
+    SHIPPED: 'info',
     COMPLETED: 'success',
-    CANCELLED: 'danger'
+    CLOSED: 'danger',
+    REFUNDING: 'warning'
   }
   return typeMap[status] || 'info'
 }
@@ -117,10 +118,11 @@ const loadDashboard = async () => {
 const getStatusText = (status: string) => {
   const textMap: any = {
     PENDING_PAYMENT: '待付款',
-    PENDING_SHIPMENT: '待发货',
-    PENDING_RECEIVE: '待收货',
+    PENDING_SHIP: '待发货',
+    SHIPPED: '已发货',
     COMPLETED: '已完成',
-    CANCELLED: '已取消'
+    CLOSED: '已关闭',
+    REFUNDING: '退款中'
   }
   return textMap[status] || status
 }
@@ -132,11 +134,19 @@ onMounted(() => {
 
 <style scoped>
 .dashboard {
-  padding: 20px;
+  padding: 0;
 }
 
 .stats-card {
-  margin-bottom: 20px;
+  border: none;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
 }
 
 .stats-content {
@@ -146,24 +156,27 @@ onMounted(() => {
 }
 
 .stats-title {
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
   font-size: 14px;
-  color: #909399;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 .stats-value {
   margin: 0;
   font-size: 28px;
-  font-weight: bold;
+  font-weight: 800;
+  color: #111827;
 }
 
 .stats-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 </style>

@@ -6,7 +6,8 @@ import Joi from 'joi'
 export const getPostsSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   pageSize: Joi.number().integer().min(1).max(50).default(20),
-  type: Joi.string().valid('IMAGE', 'VIDEO').optional()
+  type: Joi.string().valid('IMAGE', 'VIDEO').optional(),
+  tab: Joi.string().optional()
 })
 
 /**

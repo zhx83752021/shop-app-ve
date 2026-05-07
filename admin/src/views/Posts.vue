@@ -13,18 +13,18 @@
         </el-table-column>
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.reviewStatus === 'PENDING' ? 'warning' : row.reviewStatus === 'APPROVED' ? 'success' : 'danger'">
-              {{ row.reviewStatus === 'PENDING' ? '待审核' : row.reviewStatus === 'APPROVED' ? '已通过' : '已拒绝' }}
+            <el-tag :type="row.status === 'PENDING' ? 'warning' : row.status === 'APPROVED' ? 'success' : 'danger'">
+              {{ row.status === 'PENDING' ? '待审核' : row.status === 'APPROVED' ? '已通过' : '已拒绝' }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="createdAt" label="发布时间" width="180" />
         <el-table-column label="操作" width="200">
           <template #default="{ row }">
-            <el-button v-if="row.reviewStatus === 'PENDING'" size="small" type="success" @click="handleApprove(row.id)">
+            <el-button v-if="row.status === 'PENDING'" size="small" type="success" @click="handleApprove(row.id)">
               通过
             </el-button>
-            <el-button v-if="row.reviewStatus === 'PENDING'" size="small" type="danger" @click="handleReject(row.id)">
+            <el-button v-if="row.status === 'PENDING'" size="small" type="danger" @click="handleReject(row.id)">
               拒绝
             </el-button>
           </template>
@@ -45,7 +45,7 @@ const posts = ref([])
 const loadPosts = async () => {
   try {
     loading.value = true
-    const data = await getPosts({ reviewStatus: 'PENDING' })
+    const data = await getPosts({ status: 'PENDING' })
     posts.value = data.items || []
   } catch (error: any) {
     ElMessage.error(error.message || '加载失败')
@@ -56,7 +56,7 @@ const loadPosts = async () => {
 
 const handleApprove = async (id: string) => {
   try {
-    await reviewPost(id, { reviewStatus: 'APPROVED' })
+    await reviewPost(id, { status: 'APPROVED' })
     ElMessage.success('审核通过')
     loadPosts()
   } catch (error: any) {
@@ -66,7 +66,7 @@ const handleApprove = async (id: string) => {
 
 const handleReject = async (id: string) => {
   try {
-    await reviewPost(id, { reviewStatus: 'REJECTED' })
+    await reviewPost(id, { status: 'REJECTED' })
     ElMessage.success('已拒绝')
     loadPosts()
   } catch (error: any) {
@@ -80,5 +80,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page { padding: 20px; }
+.page { padding: 0; }
 </style>

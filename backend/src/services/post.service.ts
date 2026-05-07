@@ -19,6 +19,36 @@ export class PostService {
       where.type = type
     }
 
+    // 处理 Tab 过滤
+    if (query.tab === '关注') {
+      if (!userId) {
+        // 未登录时关注页返回空
+        return { items: [], total: 0, page, pageSize }
+      }
+      // 获取关注的用户列表
+      const followings = await prisma.follow.findMany({
+        where: { followerId: userId },
+        select: { followingId: true }
+      })
+      const followingIds = followings.map(f => f.followingId)
+      where.userId = { in: followingIds }
+    } else if (query.tab && query.tab !== '推荐') {
+      const keywordMap: Record<string, string[]> = {
+        '时尚': ['穿搭', '裙', '妆', '护肤', '时尚', '出游'],
+        '美食': ['探店', '咖啡', '食', '餐', '美食'],
+        '旅行': ['旅行', '出游', '游'],
+        '数码': ['桌面', '键盘', '耳机', '数码', '体验', '测评'],
+        '家居': ['卧室', '客厅', '家居', '四件套', '绿植']
+      }
+      const keywords = keywordMap[query.tab as string]
+      if (keywords) {
+        where.OR = keywords.flatMap(kw => [
+          { title: { contains: kw } },
+          { content: { contains: kw } }
+        ])
+      }
+    }
+
     const total = await prisma.post.count({ where })
 
     const posts = await prisma.post.findMany({
