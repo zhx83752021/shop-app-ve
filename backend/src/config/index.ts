@@ -8,6 +8,8 @@ interface Config {
   env: string
   port: number
   appUrl: string
+  /** CORS：逗号分隔多个源，未设置则为 `*` */
+  corsOrigin: string | string[]
   database: {
     url: string
   }
