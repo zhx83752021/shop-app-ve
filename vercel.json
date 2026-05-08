@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "installCommand": "npm install --include=dev",
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "public",
   "rewrites": [
@@ -11,8 +12,7 @@
   "functions": {
     "api/index.ts": {
       "memory": 1024,
-      "maxDuration": 30,
-      "includeFiles": "backend/{dist/**,node_modules/@prisma/client/**,node_modules/.prisma/**}"
+      "maxDuration": 30
     }
   },
   "env": {

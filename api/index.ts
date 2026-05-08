@@ -1,7 +1,28 @@
-import express, { Request, Response } from 'express'
+import fs from 'fs'
+import path from 'path'
+import express, { Request, Response, Router } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-import routes from '../backend/dist/routes'
+
+/** Vercel 构建会把 backend/dist 拷到 api/.server-dist；本地开发可直接用 backend/dist */
+function loadApiRoutes(): Router {
+  const candidates = [
+    path.join(__dirname, '.server-dist', 'routes'),
+    path.join(__dirname, '..', 'backend', 'dist', 'routes'),
+  ]
+  for (const dir of candidates) {
+    if (fs.existsSync(path.join(dir, 'index.js'))) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const mod = require(dir)
+      return (mod.default ?? mod) as Router
+    }
+  }
+  throw new Error(
+    '未找到后端编译产物：请先执行 npm run vercel-build，或在 backend 目录执行 npm run build'
+  )
+}
+
+const routes = loadApiRoutes()
 
 // 创建简化的Express应用用于Vercel Serverless
 const app = express()

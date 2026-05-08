@@ -54,6 +54,9 @@ prisma/migrations/
 !prisma/migrations/.gitkeep
 prisma/.env
 
+# Vercel Serverless 构建时由 build-all 写入，勿提交
+api/.server-dist/
+
 # Misc
 *.pem
 .vercel
