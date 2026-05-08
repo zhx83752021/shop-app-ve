@@ -66,36 +66,67 @@ interface Coupon {
 
 const coupons = ref<Coupon[]>([])
 
+const FALLBACK_COUPONS: Coupon[] = [
+  {
+    id: 'demo-coupon-1',
+    amount: 50,
+    condition: 299,
+    title: '全品类满减券',
+    description: '全场实物商品可用',
+    expireDate: '2026.12.31',
+    received: false
+  },
+  {
+    id: 'demo-coupon-2',
+    amount: 20,
+    condition: 99,
+    title: '新人专享券',
+    description: '首单立减，限领一张',
+    expireDate: '2026.06.30',
+    received: false
+  },
+  {
+    id: 'demo-coupon-3',
+    amount: 100,
+    condition: 599,
+    title: '家电品类券',
+    description: '指定家电分类可用',
+    expireDate: '2026.08.15',
+    received: false
+  }
+]
+
+function mapCouponRow(c: any): Coupon {
+  let expireDate = '长期有效'
+  if (c.endTime) {
+    const d = new Date(c.endTime)
+    if (!Number.isNaN(d.getTime())) {
+      expireDate = d.toLocaleDateString('zh-CN')
+    }
+  }
+  return {
+    id: String(c.id),
+    amount: Math.max(0, Math.round(Number(c.discountAmount ?? c.amount ?? 0))),
+    condition: Math.max(0, Math.round(Number(c.minAmount ?? c.condition ?? 0))),
+    title: c.name || c.title || '优惠券',
+    description: c.description || '满足门槛即可使用',
+    expireDate,
+    received: Boolean(c.isReceived)
+  }
+}
+
 // 加载优惠券列表
 const loadCoupons = async () => {
   try {
     loading.value = true
     const data = await getCoupons()
-    // 处理API返回的数据
-    const items = (data as any).items || data || []
-    coupons.value = items.map((c: any) => ({
-      id: c.id,
-      amount: c.amount,
-      condition: c.minAmount,
-      title: c.name,
-      description: c.description,
-      expireDate: new Date(c.endTime).toLocaleDateString('zh-CN'),
-      received: c.isReceived || false
-    }))
+    const raw = data as any
+    const items = Array.isArray(raw?.items) ? raw.items : Array.isArray(raw) ? raw : []
+    const mapped = (items as any[]).map(mapCouponRow).filter((row) => row.id)
+    coupons.value = mapped.length > 0 ? mapped : [...FALLBACK_COUPONS]
   } catch (error) {
     console.error('加载优惠券失败:', error)
-    // 使用默认数据
-    coupons.value = [
-      {
-        id: '1',
-        amount: 50,
-        condition: 299,
-        title: '全品类通用券',
-        description: '全场商品可用',
-        expireDate: '2024.12.31',
-        received: false
-      }
-    ]
+    coupons.value = [...FALLBACK_COUPONS]
   } finally {
     loading.value = false
   }
@@ -103,6 +134,10 @@ const loadCoupons = async () => {
 
 // 领取优惠券
 const receiveCoupon = async (id: string) => {
+  if (String(id).startsWith('demo-coupon')) {
+    ElMessage.warning('示例券无法领取')
+    return
+  }
   const coupon = coupons.value.find(c => c.id === id)
   if (!coupon) return
 

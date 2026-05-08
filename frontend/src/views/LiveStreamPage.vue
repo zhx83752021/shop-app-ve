@@ -34,11 +34,11 @@
         <div class="stream-info">
           <div class="anchor-info">
             <ImageWithFallback
-              :src="stream.anchor.avatar"
-              :alt="stream.anchor.nickname"
+              :src="stream.anchor?.avatar || ''"
+              :alt="stream.anchor?.nickname || '主播'"
               class-name="anchor-avatar"
             />
-            <span class="anchor-name">{{ stream.anchor.nickname }}</span>
+            <span class="anchor-name">{{ stream.anchor?.nickname ?? '主播' }}</span>
           </div>
           <h3 class="stream-title">{{ stream.title }}</h3>
           <div class="stream-tags">
@@ -67,7 +67,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, Users } from 'lucide-vue-next'
-import { ElMessage } from 'element-plus'
 import ImageWithFallback from '@/components/ImageWithFallback.vue'
 import { getLiveStreams } from '@/api/livestream'
 import type { LiveStream } from '@/api/livestream'
@@ -76,6 +75,118 @@ const router = useRouter()
 
 const liveStreams = ref<LiveStream[]>([])
 const loading = ref(false)
+
+/** 接口失败或暂无直播时的示例列表（与空列表分支一致） */
+const DEMO_LIVE_STREAMS = [
+  {
+    id: '1',
+    anchorId: 'demo-anchor',
+    title: 'iPhone 15 Pro 系列直播特惠',
+    cover: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    viewers: 23500,
+    tags: ['数码', '特惠'],
+    status: 'LIVE' as const,
+    startTime: null,
+    endTime: null,
+    createdAt: '',
+    updatedAt: '',
+    anchor: {
+      id: 'demo-anchor',
+      nickname: '数码达人阿强',
+      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100'
+    }
+  },
+  {
+    id: '2',
+    anchorId: 'demo-anchor',
+    title: '美妆护肤专场 大牌买一送一',
+    cover: 'https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    viewers: 18200,
+    tags: ['美妆', '正品'],
+    status: 'LIVE' as const,
+    startTime: null,
+    endTime: null,
+    createdAt: '',
+    updatedAt: '',
+    anchor: {
+      id: 'demo-anchor-2',
+      nickname: '美妆天后琳达',
+      avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100'
+    }
+  },
+  {
+    id: '3',
+    anchorId: 'demo-anchor',
+    title: '潮流运动鞋 限量联名首发',
+    cover: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    viewers: 35000,
+    tags: ['潮鞋', '首发'],
+    status: 'LIVE' as const,
+    startTime: null,
+    endTime: null,
+    createdAt: '',
+    updatedAt: '',
+    anchor: {
+      id: 'demo-anchor-3',
+      nickname: '潮流合伙人',
+      avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100'
+    }
+  },
+  {
+    id: '4',
+    anchorId: 'demo-anchor',
+    title: '精致家居好物 提升生活幸福感',
+    cover: 'https://images.pexels.com/photos/3825540/pexels-photo-3825540.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    viewers: 12000,
+    tags: ['家居', '美学'],
+    status: 'LIVE' as const,
+    startTime: null,
+    endTime: null,
+    createdAt: '',
+    updatedAt: '',
+    anchor: {
+      id: 'demo-anchor-4',
+      nickname: '家居设计师小雅',
+      avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100'
+    }
+  },
+  {
+    id: '5',
+    anchorId: 'demo-anchor',
+    title: '夏日穿搭专场 显瘦显高不二之选',
+    cover: 'https://images.pexels.com/photos/1036623/pexels-photo-1036623.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    viewers: 28000,
+    tags: ['时尚', '穿搭'],
+    status: 'LIVE' as const,
+    startTime: null,
+    endTime: null,
+    createdAt: '',
+    updatedAt: '',
+    anchor: {
+      id: 'demo-anchor-5',
+      nickname: '穿搭博主可儿',
+      avatar: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=100'
+    }
+  },
+  {
+    id: '6',
+    anchorId: 'demo-anchor',
+    title: '智能办公利器 效率提升秘籍',
+    cover: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    viewers: 9500,
+    tags: ['办公', '效率'],
+    status: 'LIVE' as const,
+    startTime: null,
+    endTime: null,
+    createdAt: '',
+    updatedAt: '',
+    anchor: {
+      id: 'demo-anchor-6',
+      nickname: '效率专家雷蒙',
+      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100'
+    }
+  }
+] satisfies LiveStream[]
 
 const formatViewers = (count: number): string => {
   if (count >= 10000) {
@@ -92,66 +203,16 @@ const loadStreams = async () => {
   try {
     loading.value = true
     const response = await getLiveStreams({ page: 1, pageSize: 20, status: 'LIVE' })
-    const items = response.items || []
-    
+    const items = Array.isArray((response as any)?.items) ? (response as any).items : []
+
     if (items.length === 0) {
-      // 模拟数据供演示
-      liveStreams.value = [
-        {
-          id: '1',
-          title: 'iPhone 15 Pro 系列直播特惠',
-          cover: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
-          viewers: 23500,
-          anchor: { nickname: '数码达人阿强', avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100' },
-          tags: ['数码', '特惠']
-        },
-        {
-          id: '2',
-          title: '美妆护肤专场 大牌买一送一',
-          cover: 'https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
-          viewers: 18200,
-          anchor: { nickname: '美妆天后琳达', avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100' },
-          tags: ['美妆', '正品']
-        },
-        {
-          id: '3',
-          title: '潮流运动鞋 限量联名首发',
-          cover: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
-          viewers: 35000,
-          anchor: { nickname: '潮流合伙人', avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100' },
-          tags: ['潮鞋', '首发']
-        },
-        {
-          id: '4',
-          title: '精致家居好物 提升生活幸福感',
-          cover: 'https://images.pexels.com/photos/3825540/pexels-photo-3825540.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
-          viewers: 12000,
-          anchor: { nickname: '家居设计师小雅', avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100' },
-          tags: ['家居', '美学']
-        },
-        {
-          id: '5',
-          title: '夏日穿搭专场 显瘦显高不二之选',
-          cover: 'https://images.pexels.com/photos/1036623/pexels-photo-1036623.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
-          viewers: 28000,
-          anchor: { nickname: '穿搭博主可儿', avatar: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=100' },
-          tags: ['时尚', '穿搭']
-        },
-        {
-          id: '6',
-          title: '智能办公利器 效率提升秘籍',
-          cover: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
-          viewers: 9500,
-          anchor: { nickname: '效率专家雷蒙', avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100' },
-          tags: ['办公', '效率']
-        }
-      ] as any
+      liveStreams.value = [...DEMO_LIVE_STREAMS]
     } else {
-      liveStreams.value = items
+      liveStreams.value = items as LiveStream[]
     }
   } catch (error) {
     console.error('Failed to load live streams', error)
-    ElMessage.error('加载直播列表失败')
+    liveStreams.value = [...DEMO_LIVE_STREAMS]
   } finally {
     loading.value = false
   }

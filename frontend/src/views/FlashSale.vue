@@ -23,7 +23,7 @@
         :key="product.id"
         class="product-card"
       >
-        <div @click="$router.push(`/product/${product.id}`)">
+        <div @click="goProduct(product.id)">
           <ImageWithFallback
             :src="product.image"
             :alt="product.title"
@@ -55,11 +55,12 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, ShoppingCart } from 'lucide-vue-next'
+import { ArrowLeft } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus'
 import ImageWithFallback from '@/components/ImageWithFallback.vue'
-import { getFlashSaleProducts } from '@/api/product'
+import { getFlashSaleProducts, getProducts } from '@/api/product'
 import { addToCart as addToCartAPI } from '@/api/cart'
+import { flashSaleDemoVisuals, pexelsSquare } from '@/utils/demoProductVisuals'
 
 const router = useRouter()
 
@@ -81,43 +82,90 @@ const products = ref<FlashSaleProduct[]>([])
 
 let timer: number
 
+function saleProgress(p: { sales?: unknown; stock?: unknown }): number {
+  const sales = Number(p.sales) || 0
+  const stock = Number(p.stock) || 0
+  const total = sales + stock
+  if (total <= 0) return 55 + Math.floor(Math.random() * 34)
+  return Math.min(Math.round((sales / total) * 100), 99)
+}
+
+function mapApiToFlash(items: any[]): FlashSaleProduct[] {
+  return items.map((p: any) => {
+    const flash = Math.round(Number(p.price))
+    const origRaw = p.originalPrice != null ? Number(p.originalPrice) : flash
+    const orig = Math.max(origRaw, flash)
+    return {
+      id: String(p.id),
+      image: p.mainImage || pexelsSquare(1092644),
+      title: p.title,
+      flashPrice: flash,
+      originalPrice: orig,
+      progress: saleProgress(p)
+    }
+  })
+}
+
+/** 无商品库时的纯展示数据（加购可能失败） */
+const DEMO_FLASH: FlashSaleProduct[] = flashSaleDemoVisuals.map((row, i) => ({
+  id: `demo-fs-${i + 1}`,
+  image: row.image,
+  title: row.title,
+  flashPrice: [99, 39, 59, 19][i] ?? 59,
+  originalPrice: [199, 79, 129, 49][i] ?? 99,
+  progress: [62, 48, 71, 88][i] ?? 60,
+}))
+
+async function loadFromGeneralCatalog(): Promise<FlashSaleProduct[]> {
+  const res = await getProducts({ page: 1, pageSize: 8 })
+  const items = Array.isArray((res as any)?.items) ? (res as any).items : []
+  return mapApiToFlash(items)
+}
+
 // 加载秒杀商品数据
 const loadFlashSaleProducts = async () => {
+  loading.value = true
   try {
-    loading.value = true
     const data = await getFlashSaleProducts(1, 20)
+    const items = Array.isArray((data as any)?.items) ? (data as any).items : []
+    let list = mapApiToFlash(items)
 
-    products.value = data.items.map((p: any) => ({
-      id: p.id,
-      image: p.mainImage || 'https://picsum.photos/300/300',
-      title: p.title,
-      flashPrice: p.price,
-      originalPrice: p.originalPrice,
-      // 计算已售进度 (假设库存字段为stock，已售为sales)
-      progress: p.stock > 0 ? Math.min(Math.round((p.sales / (p.sales + p.stock)) * 100), 99) : 95
-    }))
+    if (list.length === 0) {
+      list = await loadFromGeneralCatalog()
+    }
+
+    if (list.length === 0) {
+      list = [...DEMO_FLASH]
+    }
+
+    products.value = list
   } catch (error) {
     console.error('加载秒杀商品失败:', error)
-    ElMessage.error('加载失败，请稍后重试')
-
-    // 失败时使用默认数据
-    products.value = [
-      {
-        id: '1',
-        image: 'https://picsum.photos/300/300?random=1',
-        title: '限时秒杀商品',
-        flashPrice: 99,
-        originalPrice: 299,
-        progress: 68
-      }
-    ]
+    try {
+      const list = await loadFromGeneralCatalog()
+      products.value = list.length ? list : [...DEMO_FLASH]
+    } catch {
+      products.value = [...DEMO_FLASH]
+    }
   } finally {
     loading.value = false
   }
 }
 
+const goProduct = (id: string) => {
+  if (id.startsWith('demo-')) {
+    ElMessage.warning('示例商品暂无详情页')
+    return
+  }
+  router.push(`/product/${id}`)
+}
+
 // 立即抢购
 const handleFlashBuy = async (productId: string) => {
+  if (productId.startsWith('demo-')) {
+    ElMessage.warning('示例商品无法加入购物车')
+    return
+  }
   try {
     await addToCartAPI(productId, 1)
     ElMessage.success('已加入购物车，去结算吧！')

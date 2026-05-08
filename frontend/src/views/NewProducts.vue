@@ -60,9 +60,10 @@ import { ElMessage } from 'element-plus';
 import ImageWithFallback from '@/components/ImageWithFallback.vue';
 import { getProducts } from '@/api/product';
 import { addToCart as addToCartAPI } from '@/api/cart';
+import { newProductDemoVisuals, pexelsSquare } from '@/utils/demoProductVisuals'
 
-const products = ref<any[]>([]);
-const loading = ref(true);
+const products = ref<any[]>([])
+const loading = ref(true)
 const filters = [
   { id: 'all', name: '全部' },
   { id: 'latest', name: '最新上架' },
@@ -91,6 +92,15 @@ const filteredProducts = computed(() => {
   );
 });
 
+const DEMO_NEW_PRODUCTS = newProductDemoVisuals.map((row, i) => ({
+  id: `demo-np-${i + 1}`,
+  title: row.title,
+  brief: row.brief,
+  price: [59, 89, 35, 42][i],
+  image: row.image,
+  date: '新上架',
+}))
+
 const loadProducts = async () => {
   try {
     loading.value = true;
@@ -104,25 +114,33 @@ const loadProducts = async () => {
     });
 
     // 兼容不同的API响应格式
-    const items = Array.isArray(response) ? response : (response.items || []);
+    const items = Array.isArray(response) ? response : (Array.isArray((response as any)?.items) ? (response as any).items : []);
 
     products.value = items.map((item: any) => ({
       id: item.id,
       title: item.title,
       brief: item.description ? item.description.substring(0, 50) + (item.description.length > 50 ? '...' : '') : '暂无描述',
       price: item.price,
-      image: item.mainImage || 'https://placehold.co/400x400?text=NoImage',
+      image: item.mainImage || pexelsSquare(1092644),
       date: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '新上架'
     }));
+
+    if (products.value.length === 0) {
+      products.value = [...DEMO_NEW_PRODUCTS]
+    }
   } catch (error) {
     console.error('加载新品首发数据失败:', error);
-    ElMessage.error('加载失败，请稍后重试');
+    products.value = [...DEMO_NEW_PRODUCTS]
   } finally {
     loading.value = false;
   }
 };
 
 const addToCart = async (productId: string) => {
+  if (String(productId).startsWith('demo-')) {
+    ElMessage.warning('示例商品无法加购')
+    return
+  }
   try {
     await addToCartAPI(productId, 1);
     ElMessage.success('已加入购物车');

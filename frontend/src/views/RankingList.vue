@@ -25,7 +25,7 @@
         :key="item.id"
         class="ranking-card"
         :style="{ animationDelay: `${index * 50}ms` }"
-        @click="$router.push(`/product/${item.id}`)"
+        @click="openProduct(item.id)"
       >
         <div class="card-image-wrapper">
           <ImageWithFallback
@@ -83,11 +83,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { ArrowLeft, TrendingUp, TrendingDown, ShoppingCart, Minus } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus'
 import ImageWithFallback from '@/components/ImageWithFallback.vue'
 import { addToCart as addToCartAPI } from '@/api/cart'
 import { getRankingList } from '@/api/ranking'
+import { getProducts } from '@/api/product'
+import { rankingDemoVisuals } from '@/utils/demoProductVisuals'
+
+const router = useRouter()
 
 const tabs = ['热销榜', '好评榜', '新品榜', '收藏榜']
 const currentTab = ref('热销榜')
@@ -102,28 +107,72 @@ const tabTypeMap: Record<string, string> = {
   '收藏榜': 'favorite'
 }
 
+function normalizeRankingPayload(raw: unknown): any[] {
+  if (Array.isArray(raw)) return raw
+  if (raw && typeof raw === 'object' && Array.isArray((raw as { data?: unknown }).data)) {
+    return (raw as { data: any[] }).data
+  }
+  return []
+}
+
+/** 无商品数据时的占位（与接口返回结构一致） */
+const DEMO_RANKINGS = rankingDemoVisuals.map((row, i) => ({
+  id: `demo-rank-${i + 1}`,
+  title: row.title,
+  image: row.image,
+  price: [128, 299, 79, 59, 88, 359][i],
+  sales: [3200, 2100, 5600, 8900, 1400, 980][i],
+  trend: (['up', 'down', 'up', 'up', 'down', 'up'] as const)[i],
+}))
+
+function openProduct(id: string | number) {
+  const sid = String(id)
+  if (sid.startsWith('demo-')) {
+    ElMessage.warning('示例商品暂无详情页')
+    return
+  }
+  router.push(`/product/${sid}`)
+}
+
+async function fillRankingsFromProducts() {
+  try {
+    const res = await getProducts({ page: 1, pageSize: 10 })
+    const items = Array.isArray((res as any)?.items) ? (res as any).items : []
+    if (!items.length) return
+    rankings.value = items.map((p: any, i: number) => ({
+      id: p.id,
+      title: p.title,
+      image: p.mainImage,
+      price: Math.round(Number(p.price)),
+      sales: typeof p.sales === 'number' ? p.sales : Number(p.sales) || 0,
+      trend: i % 2 === 0 ? 'up' : 'down'
+    }))
+  } catch {
+    rankings.value = []
+  }
+}
+
 // 加载排行榜数据
 const loadRankings = async () => {
   try {
     loading.value = true
     const type = tabTypeMap[currentTab.value]
     const response = await getRankingList(type)
+    const list = normalizeRankingPayload(response)
+    rankings.value = list
 
-    // 适应新的API响应格式
-    if (response && response.code === 200 && response.data) {
-      rankings.value = response.data || []
-    } else if (Array.isArray(response)) {
-      // 兼容旧的API响应格式
-      rankings.value = response || []
-    } else {
-      // 未知格式
-      console.error('不支持的数据格式:', response)
-      rankings.value = []
+    if (rankings.value.length === 0) {
+      await fillRankingsFromProducts()
+    }
+    if (rankings.value.length === 0) {
+      rankings.value = [...DEMO_RANKINGS]
     }
   } catch (error) {
     console.error('加载排行榜失败:', error)
-    ElMessage.error('加载失败')
-    rankings.value = []
+    await fillRankingsFromProducts()
+    if (rankings.value.length === 0) {
+      rankings.value = [...DEMO_RANKINGS]
+    }
   } finally {
     loading.value = false
   }
@@ -136,6 +185,10 @@ watch(currentTab, () => {
 
 // 加入购物车
 const addToCart = async (productId: string | number) => {
+  if (String(productId).startsWith('demo-')) {
+    ElMessage.warning('示例商品无法加购')
+    return
+  }
   try {
     await addToCartAPI(String(productId), 1)
     ElMessage.success('已加入购物车')

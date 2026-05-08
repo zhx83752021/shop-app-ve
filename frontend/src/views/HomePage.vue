@@ -134,9 +134,6 @@
       </div>
     </div>
 
-    <!-- ===== 品牌专场 (Brand Grid) ===== -->
-    <BrandGrid />
-
     <!-- ===== 直播热卖 ===== -->
     <div class="bg-white mx-4 mb-2 rounded-card p-4 shadow-card">
       <div class="section-header">
@@ -211,7 +208,7 @@
           <div
             v-for="product in products.slice(0, 5)"
             :key="product.id"
-            @click="$router.push(`/product/${product.id}`)"
+            @click="goProduct(product.id)"
             class="flex-shrink-0 w-28 cursor-pointer press-effect group"
           >
             <div class="relative rounded-xl overflow-hidden mb-2">
@@ -255,7 +252,7 @@
           :key="product.id"
           class="product-card cursor-pointer press-effect group animate-fade-in-up"
           :style="{ animationDelay: `${index * 60}ms`, animationFillMode: 'both' }"
-          @click="$router.push(`/product/${product.id}`)"
+          @click="goProduct(product.id)"
         >
           <!-- 商品图 -->
           <div class="relative overflow-hidden">
@@ -305,7 +302,6 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, ChevronRight, Zap, TrendingUp, Video, Gift, Crown, Award, Star, Heart, ShoppingBag, Bell } from 'lucide-vue-next'
 import { Icon } from '@iconify/vue'
-import BrandGrid from '@/components/BrandGrid.vue'
 
 /* 搜索关键词高亮（转义特殊字符，防止 XSS） */
 const highlightKeyword = (text: string, keyword: string): string => {
@@ -325,9 +321,10 @@ const formatDisplayPrice = (price: any): string => {
 import { ElMessage } from 'element-plus'
 import type { Product, Banner, QuickAction } from '@/types'
 import { getBanners } from '@/api/banner'
-import { getProducts, getSearchSuggestions } from '@/api/product'
+import { getProducts, getRecommendProducts, getSearchSuggestions } from '@/api/product'
 import { addToCart as addToCartAPI } from '@/api/cart'
 import { addFavorite, removeFavorite } from '@/api/user'
+import { homeDemoVisuals, pexelsSquare } from '@/utils/demoProductVisuals'
 
 /* 导入生成的本地图片 */
 import bannerNewArrivals from '@/assets/images/banner_new_arrivals.png'
@@ -428,35 +425,92 @@ const handleQuickAction = (action: QuickAction) => {
   if (route) router.push(route)
 }
 
+function mapHomeProduct(p: any): Product {
+  const salesNum = Number(p.sales) || 0
+  return {
+    id: String(p.id),
+    image: p.mainImage || pexelsSquare(1092644),
+    title: p.title,
+    price: `￥${p.price}`,
+    originalPrice: `￥${p.originalPrice ?? p.price}`,
+    sales: `已售${salesNum > 10000 ? (salesNum / 10000).toFixed(1) + '万' : salesNum}`,
+    tag: Array.isArray(p.tags) && p.tags[0] ? String(p.tags[0]) : '推荐',
+    isFavorite: false
+  }
+}
+
+/** 接口全空时的占位，避免首页「为你推荐」白板 */
+const DEMO_HOME_PRODUCTS: Product[] = homeDemoVisuals.map((row, i) => ({
+  id: `demo-home-${i + 1}`,
+  image: row.image,
+  title: row.title,
+  price: row.price,
+  originalPrice: row.originalPrice,
+  sales: row.sales,
+  tag: row.tag,
+  isFavorite: false,
+}))
+
+const goProduct = (id: string) => {
+  if (String(id).startsWith('demo-')) {
+    ElMessage.warning('示例商品暂无详情页')
+    return
+  }
+  router.push(`/product/${id}`)
+}
+
 /* 加载数据 */
 const loadData = async () => {
+  loading.value = true
   try {
-    loading.value = true
-    const [bannersData, productsData] = await Promise.all([
-      getBanners(),
-      getProducts({ page: 1, pageSize: 20 })
-    ])
+    let bannersData: any[] = []
+    try {
+      const b = await getBanners()
+      bannersData = Array.isArray(b) ? b : []
+    } catch {
+      bannersData = []
+    }
 
-    /* Banner：若API有数据则叠加，否则用本地图 */
-    if (bannersData && bannersData.length > 0) {
-      banners.value = bannersData.map((b: any) => ({
-        id: b.id, image: b.image, title: b.title, link: b.link
+    if (bannersData.length > 0) {
+      banners.value = bannersData.map((item: any) => ({
+        id: item.id,
+        image: item.image,
+        title: item.title,
+        link: item.link
       }))
     }
 
-    /* 商品数据格式转换 */
-    products.value = productsData.items.map((p: any) => ({
-      id: p.id,
-      image: p.mainImage,
-      title: p.title,
-      price: `￥${p.price}`,
-      originalPrice: `￥${p.originalPrice}`,
-      sales: `已售${p.sales > 10000 ? (p.sales / 10000).toFixed(1) + '万' : p.sales}`,
-      tag: p.tags?.[0] || '推荐',
-      isFavorite: false
-    }))
+    let items: any[] = []
+    try {
+      const productsRes = await getProducts({ page: 1, pageSize: 20 })
+      items = Array.isArray((productsRes as any)?.items) ? (productsRes as any).items : []
+    } catch {
+      items = []
+    }
+
+    if (items.length === 0) {
+      try {
+        const rec = await getRecommendProducts(20)
+        items = Array.isArray(rec) ? rec : []
+      } catch {
+        items = []
+      }
+    }
+
+    if (items.length > 0) {
+      products.value = items.map(mapHomeProduct)
+    } else {
+      products.value = [...DEMO_HOME_PRODUCTS]
+    }
   } catch (error) {
     console.error('加载数据失败:', error)
+    try {
+      const rec = await getRecommendProducts(20)
+      const arr = Array.isArray(rec) ? rec : []
+      products.value = arr.length ? arr.map(mapHomeProduct) : [...DEMO_HOME_PRODUCTS]
+    } catch {
+      products.value = [...DEMO_HOME_PRODUCTS]
+    }
   } finally {
     loading.value = false
   }
@@ -478,6 +532,10 @@ const hideSearchSuggestions = () => {
 }
 
 const toggleFavorite = async (productId: string) => {
+  if (String(productId).startsWith('demo-')) {
+    ElMessage.warning('示例商品无法收藏')
+    return
+  }
   const product = products.value.find(p => p.id === productId)
   if (!product) return
   try {
@@ -496,6 +554,10 @@ const toggleFavorite = async (productId: string) => {
 }
 
 const addToCart = async (productId: string) => {
+  if (String(productId).startsWith('demo-')) {
+    ElMessage.warning('示例商品无法加购')
+    return
+  }
   try {
     await addToCartAPI(productId, 1)
     ElMessage.success('已加入购物车')

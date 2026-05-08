@@ -8,23 +8,8 @@
       <div class="w-6"></div>
     </div>
 
-    <!-- 品牌列表 -->
-    <div class="brands-container">
-      <div
-        v-for="(brand, index) in brands"
-        :key="index"
-        :class="['brand-card', { 'selected': selectedBrand === brand.name }]"
-        @click="filterByBrand(brand.name)"
-      >
-        <ImageWithFallback
-          :src="brand.logo"
-          :alt="brand.name"
-          class-name="brand-logo"
-        />
-        <div class="brand-name">{{ brand.name }}</div>
-        <div class="brand-discount">{{ brand.discount }}</div>
-      </div>
-    </div>
+    <!-- 品牌馆（从首页迁入）：点击筛选下方闪购商品 -->
+    <BrandGrid @select="onShowroomSelect" @clear-all="onShowroomClearAll" />
 
     <!-- 闪购商品 -->
     <div class="section-title">
@@ -34,8 +19,8 @@
     </div>
 
     <div v-if="filteredProducts.length === 0" class="empty-container">
-      <p class="empty-text">暂无该品牌商品</p>
-      <button @click="clearFilter" class="clear-filter-btn">查看全部商品</button>
+      <p class="empty-text">{{ selectedBrand ? '暂无该品牌商品' : '暂无可抢购商品' }}</p>
+      <button type="button" @click="onShowroomClearAll" class="clear-filter-btn">查看全部商品</button>
     </div>
 
     <div v-else class="products-container">
@@ -45,7 +30,7 @@
         class="product-card"
       >
         <div
-          @click="$router.push(`/product/${product.id}`)"
+          @click="goProductPage(product.id)"
           class="product-image-container"
         >
           <ImageWithFallback
@@ -87,58 +72,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft } from 'lucide-vue-next';
 import { ElMessage } from 'element-plus';
 import ImageWithFallback from '@/components/ImageWithFallback.vue';
+import BrandGrid from '@/components/BrandGrid.vue';
 import { getProducts } from '@/api/product';
 import { addToCart as addToCartAPI } from '@/api/cart';
+import { brandSaleDemoMeta, imageForShowroomBrand } from '@/utils/demoProductVisuals';
 
-const brands = ref([
-  {
-    name: 'Apple',
-    logo: 'https://placehold.co/120x120/000000/FFFFFF?text=Apple&font=roboto',
-    discount: '8.5折'
-  },
-  {
-    name: 'Samsung',
-    logo: 'https://placehold.co/120x120/1428A0/FFFFFF?text=Samsung&font=roboto',
-    discount: '7.5折'
-  },
-  {
-    name: 'Nike',
-    logo: 'https://placehold.co/120x120/FF6900/FFFFFF?text=Nike&font=roboto',
-    discount: '6折起'
-  },
-  {
-    name: 'Adidas',
-    logo: 'https://placehold.co/120x120/000000/FFFFFF?text=Adidas&font=roboto',
-    discount: '5折起'
-  },
-  {
-    name: 'Huawei',
-    logo: 'https://placehold.co/120x120/FF0000/FFFFFF?text=Huawei&font=roboto',
-    discount: '8折'
-  },
-  {
-    name: 'Xiaomi',
-    logo: 'https://placehold.co/120x120/FF6900/FFFFFF?text=Xiaomi&font=roboto',
-    discount: '7折'
-  },
-  {
-    name: 'Puma',
-    logo: 'https://placehold.co/120x120/000000/FFFFFF?text=Puma&font=roboto',
-    discount: '6.5折'
-  },
-  {
-    name: 'Sony',
-    logo: 'https://placehold.co/120x120/0066CC/FFFFFF?text=Sony&font=roboto',
-    discount: '8折'
+const route = useRoute();
+const router = useRouter();
+
+const SHOWROOM_BRANDS = ['Apple', 'Samsung', 'Nike', 'Adidas', 'Huawei', 'Xiaomi', 'Puma', 'Sony'] as const;
+
+function singleQueryBrand(q: unknown): string {
+  if (typeof q === 'string' && q.trim()) return q.trim();
+  if (Array.isArray(q) && q.length > 0) {
+    const v = q[0];
+    if (typeof v === 'string' && v.trim()) return v.trim();
   }
-]);
+  return '';
+}
 
 const products = ref<any[]>([]);
-const allProducts = ref<any[]>([]); // 保存所有商品
 const selectedBrand = ref<string>(''); // 当前选中的品牌
 const countdown = ref({
   hours: '02',
@@ -150,41 +108,77 @@ let countdownTimer: number | null = null;
 
 const loadProducts = async () => {
   try {
-    // 获取产品数据
     const response = await getProducts({
       page: 1,
       pageSize: 20
     });
 
-    const productList = response.items.map((item: any) => {
-      // 生成随机折扣
-      const discountPercent = Math.floor(Math.random() * 50) + 30; // 30% - 80% 折扣
+    const items = Array.isArray((response as any)?.items) ? (response as any).items : [];
+    let productList = items.map((item: any, index: number) => {
+      const discountPercent = Math.floor(Math.random() * 50) + 30;
       const discount = `${discountPercent}%`;
-      const originalPrice = item.price;
+      const originalPrice = Number(item.price);
       const discountedPrice = Math.round(originalPrice * discountPercent / 100);
 
       return {
         id: item.id,
         title: item.title,
-        brand: ['Apple', 'Samsung', 'Nike', 'Adidas', 'Huawei', 'Xiaomi', 'Puma', 'Sony'][
-          Math.floor(Math.random() * 8)
-        ],
+        brand: SHOWROOM_BRANDS[index % SHOWROOM_BRANDS.length],
         price: discountedPrice,
         originalPrice: originalPrice,
         discount: discount,
         image: item.mainImage
       };
     });
-    
-    allProducts.value = productList;
+
+    if (productList.length === 0) {
+      productList = buildDemoBrandSaleProducts();
+    }
+
     products.value = productList;
   } catch (error) {
     console.error('加载品牌闪购数据失败:', error);
-    ElMessage.error('加载失败，请稍后重试');
+    products.value = buildDemoBrandSaleProducts();
   }
 };
 
+/** 接口无商品时的占位（可浏览，加购会提示） */
+function buildDemoBrandSaleProducts() {
+  return brandSaleDemoMeta.map((row, index) => {
+    const discountPercent = 40 + (index % 5) * 8;
+    const original = 299 + index * 80;
+    const price = Math.round(original * (discountPercent / 100));
+    return {
+      id: `demo-bs-${index + 1}`,
+      title: row.title,
+      brand: row.brand,
+      price,
+      originalPrice: original,
+      discount: `${discountPercent}%`,
+      image: imageForShowroomBrand(row.brand),
+    };
+  });
+}
+
+/** 当前选中品牌在列表里一条都没有时，把第一条改成该品牌，避免空白 */
+function ensureSelectedBrandHasProducts() {
+  const b = selectedBrand.value;
+  if (!b || products.value.length === 0) return;
+  if (products.value.some((p) => p.brand === b)) return;
+  const first = products.value[0];
+  products.value[0] = {
+    ...first,
+    brand: b,
+    image: imageForShowroomBrand(b),
+    title: typeof first.title === 'string' && first.title.includes(b) ? first.title : `${b} 馆热卖`,
+  };
+}
+
 const addToCart = async (productId: string) => {
+  if (String(productId).startsWith('demo-')) {
+    ElMessage.warning('示例商品无法加购');
+    return;
+  }
   try {
     await addToCartAPI(productId, 1);
     ElMessage.success('已加入购物车');
@@ -215,6 +209,41 @@ const clearFilter = () => {
   selectedBrand.value = '';
 };
 
+function goProductPage(id: string) {
+  if (String(id).startsWith('demo-')) {
+    ElMessage.warning('示例商品暂无详情页');
+    return;
+  }
+  router.push(`/product/${id}`);
+}
+
+function syncBrandQuery() {
+  if (selectedBrand.value) {
+    router.replace({ path: '/brand-sale', query: { brand: selectedBrand.value } });
+  } else {
+    router.replace({ path: '/brand-sale' });
+  }
+}
+
+function onShowroomSelect(name: string) {
+  filterByBrand(name);
+  ensureSelectedBrandHasProducts();
+  syncBrandQuery();
+}
+
+function onShowroomClearAll() {
+  clearFilter();
+  syncBrandQuery();
+}
+
+watch(
+  () => route.query.brand,
+  (b) => {
+    selectedBrand.value = singleQueryBrand(b);
+    ensureSelectedBrandHasProducts();
+  }
+);
+
 const startCountdown = () => {
   let totalSeconds = 2 * 60 * 60 + 34 * 60 + 56; // 初始倒计时：02:34:56
 
@@ -238,8 +267,10 @@ const startCountdown = () => {
   }, 1000);
 };
 
-onMounted(() => {
-  loadProducts();
+onMounted(async () => {
+  await loadProducts();
+  selectedBrand.value = singleQueryBrand(route.query.brand);
+  ensureSelectedBrandHasProducts();
   startCountdown();
 });
 

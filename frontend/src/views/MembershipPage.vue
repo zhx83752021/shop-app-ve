@@ -35,7 +35,7 @@
             </div>
             <div class="text-right">
               <p class="text-[10px] font-bold text-ink-muted uppercase tracking-tighter opacity-50">Score</p>
-              <p class="text-xl font-display font-bold text-primary">8,240</p>
+              <p class="text-xl font-display font-bold text-primary">{{ pointsDisplay }}</p>
             </div>
           </div>
 
@@ -51,7 +51,7 @@
             </div>
             <div class="w-px h-6 bg-black/10"></div>
             <div class="benefit-mini">
-              <p class="text-sm font-bold text-ink">128.0</p>
+              <p class="text-sm font-bold text-ink">{{ rewardYuan }}</p>
               <p class="text-[9px] text-ink-muted font-medium">REWARD ¥</p>
             </div>
             <div class="w-px h-6 bg-black/10"></div>
@@ -125,24 +125,41 @@
       </div>
     </div>
 
-    <!-- 升级提示 (Floating CTA) -->
-    <div class="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#FDF8F5] via-[#FDF8F5]/90 to-transparent z-30">
-      <button class="w-full h-14 bg-ink rounded-2xl text-white font-bold flex items-center justify-center gap-2 shadow-xl shadow-ink/20 press-effect" @click="showUpgradeDialog = true">
-        <Zap class="w-5 h-5 text-[#FFD700]" />
-        升级至白金会员 · 获更多权益
-      </button>
+    <!-- 升级提示：与主栏同宽，不占满整屏 -->
+    <div class="fixed bottom-0 inset-x-0 z-30 flex justify-center pointer-events-none">
+      <div
+        class="w-full max-w-md pointer-events-auto px-5 pt-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-[#FDF8F5] via-[#FDF8F5]/92 to-transparent"
+      >
+        <button
+          type="button"
+          class="w-full h-14 bg-ink rounded-2xl text-white font-bold flex items-center justify-center gap-2 shadow-xl shadow-ink/20 press-effect"
+          @click="showUpgradeDialog = true"
+        >
+          <Zap class="w-5 h-5 text-[#FFD700]" />
+          升级至白金会员 · 获更多权益
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ArrowLeft, Crown, Zap, Gift, Truck, Tag, Heart, Star, ChevronRight } from 'lucide-vue-next'
 import ImageWithFallback from '@/components/ImageWithFallback.vue'
+import { getUserProfile } from '@/api/user'
+import { getProducts } from '@/api/product'
 
 const userInfo = ref({
   nickname: '会员用户'
 })
+
+const membershipPoints = ref(8240)
+const rewardYuan = ref('128.0')
+
+const pointsDisplay = computed(() =>
+  membershipPoints.value.toLocaleString('zh-CN', { maximumFractionDigits: 0 })
+)
 
 const showUpgradeDialog = ref(false)
 
@@ -155,7 +172,7 @@ const privileges = [
   { id: 6, name: '专属客服', desc: '1对1服务', icon: Crown }
 ]
 
-const memberProducts = ref([
+const FALLBACK_MEMBER_PRODUCTS = [
   {
     id: '1',
     title: 'Apple AirPods Pro 2代',
@@ -184,7 +201,50 @@ const memberProducts = ref([
     price: 1590,
     memberPrice: 1390
   }
-])
+]
+
+const memberProducts = ref([...FALLBACK_MEMBER_PRODUCTS])
+
+async function loadProfile() {
+  try {
+    const p = await getUserProfile()
+    userInfo.value.nickname = p.nickname?.trim() || userInfo.value.nickname
+    if (typeof p.points === 'number' && !Number.isNaN(p.points)) {
+      membershipPoints.value = p.points
+    }
+    const bal = Number(p.balance)
+    if (Number.isFinite(bal)) {
+      rewardYuan.value = bal.toFixed(1)
+    }
+  } catch {
+    /* 未登录或网络异常时保留占位 */
+  }
+}
+
+async function loadMemberShelf() {
+  try {
+    const res = await getProducts({ page: 1, pageSize: 4 })
+    const items = Array.isArray((res as any)?.items) ? (res as any).items : []
+    if (!items.length) return
+    memberProducts.value = items.map((item: any) => {
+      const price = Math.round(Number(item.price))
+      return {
+        id: item.id,
+        title: item.title,
+        image: item.mainImage,
+        price,
+        memberPrice: Math.max(1, Math.round(price * 0.95))
+      }
+    })
+  } catch {
+    memberProducts.value = [...FALLBACK_MEMBER_PRODUCTS]
+  }
+}
+
+onMounted(() => {
+  loadProfile()
+  loadMemberShelf()
+})
 </script>
 
 <style scoped>
