@@ -1,6 +1,8 @@
 // Prisma Schema for 零售电商App
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Vercel Serverless（Linux/OpenSSL 3）与本地构建
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
