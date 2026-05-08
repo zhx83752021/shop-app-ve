@@ -1,15 +1,13 @@
 import express, { Application } from 'express'
-import path from 'path'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import config from './config'
 import logger from './utils/logger'
+import { resolveUploadDir } from './utils/uploadDir'
 import routes from './routes'
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler'
-
-// 创建Express应用
 const app: Application = express()
 
 // 安全中间件
@@ -24,7 +22,7 @@ app.use(
 )
 
 // 静态资源访问
-app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')))
+app.use('/uploads', express.static(resolveUploadDir()))
 
 // 请求体解析
 app.use(express.json({ limit: '10mb' }))

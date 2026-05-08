@@ -5,10 +5,11 @@ import fs from 'fs'
 import { UploadController } from '../controllers/upload.controller'
 import { authenticate } from '../middlewares/auth'
 
+import { resolveUploadDir } from '../utils/uploadDir'
+
 const router = Router()
 
-// 确保上传目录存在
-const uploadDir = path.join(process.cwd(), 'public/uploads')
+const uploadDir = resolveUploadDir()
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true })
 }
