@@ -10,11 +10,11 @@ execSync('cd backend && npm install --include=dev && npx prisma generate && npm 
 
 // 2. 前端：构建用户端
 console.log('\n🎨 构建用户前端...');
-execSync('cd frontend && npm install && npm run build', { stdio: 'inherit' });
+execSync('cd frontend && npm install --include=dev && npm run build', { stdio: 'inherit' });
 
 // 3. 后台：构建管理端
 console.log('\n🔧 构建后台管理...');
-execSync('cd admin && npm install && npm run build', { stdio: 'inherit' });
+execSync('cd admin && npm install --include=dev && npm run build', { stdio: 'inherit' });
 
 // 4. 创建公共输出目录
 const publicDir = path.join(__dirname, 'public');
