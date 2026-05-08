@@ -89,11 +89,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ArrowLeft, Heart, ShoppingCart, Check } from 'lucide-vue-next'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import ImageWithFallback from '@/components/ImageWithFallback.vue'
 import { addToCart as addToCartAPI } from '@/api/cart'
+import { getFavorites } from '@/api/user'
+import { FAVORITES_LOCAL_DEMO_LIST, FAVORITES_LOCAL_DEMO_IDS_PREFIX } from '@/utils/favoritesLocalDemos'
 
 interface FavoriteItem {
   id: string
@@ -103,36 +105,20 @@ interface FavoriteItem {
   price: number
 }
 
-const favorites = ref<FavoriteItem[]>([
-  {
-    id: '1',
-    title: 'Apple iPhone 15 Pro Max',
-    description: '钛金属设计，A17 Pro芯片',
-    image: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
-    price: 9999
-  },
-  {
-    id: '2',
-    title: 'Nike Air Jordan 1',
-    description: '经典配色，限量发售',
-    image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
-    price: 1399
-  },
-  {
-    id: '3',
-    title: 'Sony WH-1000XM5 降噪耳机',
-    description: '业界领先降噪技术',
-    image: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
-    price: 2499
-  },
-  {
-    id: '4',
-    title: 'Dyson V15吸尘器',
-    description: '激光探测微尘',
-    image: 'https://images.pexels.com/photos/3825540/pexels-photo-3825540.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
-    price: 4990
+function mapApiFavoriteRow(row: any): FavoriteItem | null {
+  const p = row?.product
+  if (!p?.id) return null
+  const priceNum = parseFloat(String(p.price))
+  return {
+    id: p.id,
+    title: String(p.title ?? '商品'),
+    description: '',
+    image: String(p.mainImage ?? ''),
+    price: Number.isFinite(priceNum) ? priceNum : 0,
   }
-])
+}
+
+const favorites = ref<FavoriteItem[]>([])
 
 const isEditing = ref(false)
 const selectedItems = ref<string[]>([])
@@ -184,6 +170,10 @@ const deleteFavorites = async () => {
 }
 
 const addToCart = async (productId: string) => {
+  if (String(productId).startsWith(FAVORITES_LOCAL_DEMO_IDS_PREFIX)) {
+    ElMessage.warning('示例收藏无法加购，请登录后收藏真实商品')
+    return
+  }
   try {
     await addToCartAPI(productId, 1)
     ElMessage.success('已加入购物车')
@@ -192,6 +182,25 @@ const addToCart = async (productId: string) => {
     ElMessage.error('添加失败，请稍后重试')
   }
 }
+
+async function loadFavorites() {
+  try {
+    const res: any = await getFavorites(1, 40)
+    const rows = Array.isArray(res?.items) ? res.items : []
+    const mapped = rows.map(mapApiFavoriteRow).filter(Boolean) as FavoriteItem[]
+    if (mapped.length > 0) {
+      favorites.value = mapped
+      return
+    }
+  } catch {
+    /* 未登录或接口异常 */
+  }
+  favorites.value = FAVORITES_LOCAL_DEMO_LIST.map((r) => ({ ...r }))
+}
+
+onMounted(() => {
+  loadFavorites()
+})
 </script>
 
 <style scoped>

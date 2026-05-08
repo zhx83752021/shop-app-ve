@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col h-screen bg-white max-w-md mx-auto relative">
+  <div class="flex flex-col h-full min-h-0 bg-white max-w-md mx-auto relative">
     <!-- 主内容区 -->
-    <div class="flex-1 overflow-y-auto h-0">
+    <div class="flex-1 min-h-0 overflow-y-auto">
       <RouterView />
     </div>
 

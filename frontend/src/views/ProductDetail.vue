@@ -187,7 +187,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeft, Share2, MoreVertical, Shield, Truck, RefreshCcw,
@@ -197,6 +197,7 @@ import { ElMessage } from 'element-plus'
 import { getProductById } from '@/api/product'
 import { addToCart as addToCartAPI } from '@/api/cart'
 import { addFavorite, removeFavorite, checkFavoriteStatus } from '@/api/user'
+import { LOCAL_DEMO_PRODUCT_DETAIL_BY_ID, FAVORITES_LOCAL_DEMO_IDS_PREFIX } from '@/utils/favoritesLocalDemos'
 
 const route = useRoute()
 const router = useRouter()
@@ -276,11 +277,20 @@ const discountPercent = computed(() => {
   return saved > 0 ? saved.toFixed(0) : null
 })
 
+const isLocalDemoProductId = (pid: string) => String(pid).startsWith(FAVORITES_LOCAL_DEMO_IDS_PREFIX)
+
 /* 加载商品详情 */
 const loadProduct = async () => {
   try {
     loading.value = true
     const id = route.params.id as string
+    const local = LOCAL_DEMO_PRODUCT_DETAIL_BY_ID[id]
+    if (local) {
+      product.value = { ...product.value, ...local }
+      isFavorite.value = true
+      await checkFavorite(id)
+      return
+    }
     const data = await getProductById(id)
     product.value = data
     await checkFavorite(id)
@@ -301,6 +311,10 @@ const checkFavorite = async (productId: string) => {
 }
 
 const toggleFavorite = async () => {
+  if (isLocalDemoProductId(product.value.id)) {
+    ElMessage.warning('示例商品无法改收藏状态')
+    return
+  }
   try {
     if (isFavorite.value) {
       await removeFavorite(product.value.id)
@@ -316,6 +330,10 @@ const toggleFavorite = async () => {
 }
 
 const addToCart = async () => {
+  if (isLocalDemoProductId(product.value.id)) {
+    ElMessage.warning('示例商品无法加购')
+    return
+  }
   try {
     await addToCartAPI(product.value.id, 1)
     ElMessage.success('已加入购物车')
@@ -325,6 +343,10 @@ const addToCart = async () => {
 }
 
 const buyNow = () => {
+  if (isLocalDemoProductId(product.value.id)) {
+    ElMessage.warning('示例商品无法下单')
+    return
+  }
   const checkoutItem = {
     id: `temp_${Date.now()}`,
     productId: product.value.id,
@@ -341,10 +363,18 @@ const buyNow = () => {
 
 onMounted(() => {
   loadProduct()
-  /* 监听父级滚动容器 */
   const scrollEl = document.querySelector('.detail-page')?.parentElement
   scrollEl?.addEventListener('scroll', handleScroll)
 })
+
+watch(
+  () => route.params.id,
+  () => {
+    activeImg.value = 0
+    scrolled.value = false
+    loadProduct()
+  }
+)
 
 onUnmounted(() => {
   const scrollEl = document.querySelector('.detail-page')?.parentElement
