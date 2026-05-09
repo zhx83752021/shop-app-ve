@@ -1,5 +1,5 @@
 <template>
-  <div class="page max-w-md mx-auto relative">
+  <div class="w-full page max-w-md mx-auto relative">
     <div class="header">
       <button @click="$router.back()" class="back-btn">
         <ArrowLeft class="w-6 h-6" />
@@ -80,7 +80,6 @@ import ImageWithFallback from '@/components/ImageWithFallback.vue';
 import BrandGrid from '@/components/BrandGrid.vue';
 import { getProducts } from '@/api/product';
 import { addToCart as addToCartAPI } from '@/api/cart';
-import { brandSaleDemoMeta, imageForShowroomBrand } from '@/utils/demoProductVisuals';
 
 const route = useRoute();
 const router = useRouter();
@@ -131,54 +130,16 @@ const loadProducts = async () => {
       };
     });
 
-    if (productList.length === 0) {
-      productList = buildDemoBrandSaleProducts();
-    }
-
     products.value = productList;
   } catch (error) {
     console.error('加载品牌闪购数据失败:', error);
-    products.value = buildDemoBrandSaleProducts();
+    products.value = [];
   }
 };
 
-/** 接口无商品时的占位（可浏览，加购会提示） */
-function buildDemoBrandSaleProducts() {
-  return brandSaleDemoMeta.map((row, index) => {
-    const discountPercent = 40 + (index % 5) * 8;
-    const original = 299 + index * 80;
-    const price = Math.round(original * (discountPercent / 100));
-    return {
-      id: `demo-bs-${index + 1}`,
-      title: row.title,
-      brand: row.brand,
-      price,
-      originalPrice: original,
-      discount: `${discountPercent}%`,
-      image: imageForShowroomBrand(row.brand),
-    };
-  });
-}
 
-/** 当前选中品牌在列表里一条都没有时，把第一条改成该品牌，避免空白 */
-function ensureSelectedBrandHasProducts() {
-  const b = selectedBrand.value;
-  if (!b || products.value.length === 0) return;
-  if (products.value.some((p) => p.brand === b)) return;
-  const first = products.value[0];
-  products.value[0] = {
-    ...first,
-    brand: b,
-    image: imageForShowroomBrand(b),
-    title: typeof first.title === 'string' && first.title.includes(b) ? first.title : `${b} 馆热卖`,
-  };
-}
 
 const addToCart = async (productId: string) => {
-  if (String(productId).startsWith('demo-')) {
-    ElMessage.warning('示例商品无法加购');
-    return;
-  }
   try {
     await addToCartAPI(productId, 1);
     ElMessage.success('已加入购物车');
@@ -210,10 +171,6 @@ const clearFilter = () => {
 };
 
 function goProductPage(id: string) {
-  if (String(id).startsWith('demo-')) {
-    ElMessage.warning('示例商品暂无详情页');
-    return;
-  }
   router.push(`/product/${id}`);
 }
 
@@ -227,7 +184,6 @@ function syncBrandQuery() {
 
 function onShowroomSelect(name: string) {
   filterByBrand(name);
-  ensureSelectedBrandHasProducts();
   syncBrandQuery();
 }
 
@@ -240,7 +196,6 @@ watch(
   () => route.query.brand,
   (b) => {
     selectedBrand.value = singleQueryBrand(b);
-    ensureSelectedBrandHasProducts();
   }
 );
 
@@ -270,7 +225,6 @@ const startCountdown = () => {
 onMounted(async () => {
   await loadProducts();
   selectedBrand.value = singleQueryBrand(route.query.brand);
-  ensureSelectedBrandHasProducts();
   startCountdown();
 });
 
@@ -285,7 +239,7 @@ onUnmounted(() => {
 .page {
   min-height: 100vh;
   height: 100vh;
-  background: #f5f5f5;
+  background: #ffffff;
   padding-bottom: 80px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -300,8 +254,10 @@ onUnmounted(() => {
   color: #1A1A2E;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 50;
   border-bottom: 1px solid #f0f0f0;
+  max-width: 448px;
+  margin: 0 auto;
 }
 
 .back-btn {
@@ -391,23 +347,29 @@ onUnmounted(() => {
 .products-container {
   padding: 0 16px 16px;
   background: white;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .product-card {
-  margin-bottom: 16px;
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
 }
 
 .product-image-container {
   position: relative;
+  width: 100%;
+  aspect-ratio: 1; /* 正方形图片更适合双列排列 */
 }
 
 .product-image {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -434,13 +396,16 @@ onUnmounted(() => {
 }
 
 .product-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   line-height: 1.4;
+  height: 36px; /* 约2行的高度 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .product-prices {

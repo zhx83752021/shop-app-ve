@@ -1,0 +1,11 @@
+import{d,r as m,c as a,a as s,b as p,f as v,u,t as h,k as _,o,_ as g,R as k,F as b,m as C,n as l,j as w,p as B,q as S}from"./index-B90fqxSU.js";import{H}from"./headphones-Blte1LTC.js";import{c as f}from"./createLucideIcon-CEWFwlrO.js";import{S as z}from"./shopping-cart-D4mLQKM0.js";import{U as F}from"./user-L9WOuWCA.js";/**
+ * @license lucide-vue-next v0.330.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const I=f("CompassIcon",[["circle",{cx:"12",cy:"12",r:"10",key:"1mglay"}],["polygon",{points:"16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76",key:"m9r19z"}]]);/**
+ * @license lucide-vue-next v0.330.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const R=f("HomeIcon",[["path",{d:"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",key:"y5dka4"}],["polyline",{points:"9 22 9 12 15 12 15 22",key:"e2us08"}]]),V={class:"floating-service"},$={key:0,class:"badge"},L=d({__name:"FloatingServiceButton",setup(y){const n=_(),c=m(!1),r=m(0),t=()=>{n.push("/customer-chat")};return(i,x)=>(o(),a("div",V,[s("button",{onClick:t,class:"service-btn"},[p(u(H),{class:"w-6 h-6"}),c.value?(o(),a("span",$,h(r.value),1)):v("",!0)])]))}}),N=g(L,[["__scopeId","data-v-efb8cea8"]]),U={class:"flex flex-col h-screen bg-white max-w-md mx-auto relative"},j={class:"flex-1 overflow-y-auto h-0"},D={class:"sticky bottom-0 bg-white border-t border-gray-200 px-2 py-2 pb-safe z-50"},q={class:"flex items-center justify-around"},A=["onClick"],P=d({__name:"Layout",setup(y){const n=_(),c=S(),r=[{path:"/home",label:"首页",icon:R},{path:"/discover",label:"发现",icon:I},{path:"/cart",label:"购物车",icon:z},{path:"/profile",label:"我的",icon:F}],t=i=>c.path===i;return(i,x)=>(o(),a("div",U,[s("div",j,[p(u(k))]),p(N),s("nav",D,[s("div",q,[(o(),a(b,null,C(r,e=>s("button",{key:e.path,onClick:E=>u(n).push(e.path),class:l(["flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all",t(e.path)?"bg-orange-50":""])},[(o(),w(B(e.icon),{class:l(["w-6 h-6",t(e.path)?"text-primary":"text-gray-400"]),"stroke-width":t(e.path)?2.5:2},null,8,["class","stroke-width"])),s("span",{class:l(["text-xs",t(e.path)?"text-primary":"text-gray-600"])},h(e.label),3)],10,A)),64))])])]))}});export{P as default};

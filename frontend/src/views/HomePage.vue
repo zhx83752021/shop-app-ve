@@ -1,7 +1,7 @@
 <template>
-  <div class="h-full overflow-y-auto overflow-x-hidden relative bg-[#FDF8F5]">
+  <div class="relative bg-[#FDF8F5] min-h-full overflow-x-hidden">
     <!-- ===== 背景装饰 (Header Background Decoration) ===== -->
-    <div class="fixed inset-x-0 top-0 h-[300px] pointer-events-none z-0 overflow-hidden">
+    <div class="absolute inset-x-0 top-0 h-[300px] pointer-events-none z-0 overflow-hidden">
       <!-- 顶部基础渐变 -->
       <div class="absolute inset-0 bg-gradient-to-b from-[#FFF2E6] to-transparent"></div>
       <!-- 顶部艺术光晕 -->
@@ -144,7 +144,7 @@
             直播热卖
           </span>
         </div>
-        <button class="section-more">更多 <ChevronRight class="w-4 h-4" /></button>
+        <button @click="$router.push('/live-stream')" class="section-more">更多 <ChevronRight class="w-4 h-4" /></button>
       </div>
       <div class="flex gap-3 overflow-x-auto scrollbar-hide -mx-1 px-1">
         <div
@@ -198,7 +198,7 @@
             </span>
           </div>
         </div>
-        <button class="text-white/70 text-xs flex items-center gap-0.5 hover:text-white transition-colors">
+        <button @click="$router.push('/flash-sale')" class="text-white/70 text-xs flex items-center gap-0.5 hover:text-white transition-colors">
           更多 <ChevronRight class="w-3.5 h-3.5" />
         </button>
       </div>
@@ -324,7 +324,6 @@ import { getBanners } from '@/api/banner'
 import { getProducts, getRecommendProducts, getSearchSuggestions } from '@/api/product'
 import { addToCart as addToCartAPI } from '@/api/cart'
 import { addFavorite, removeFavorite } from '@/api/user'
-import { homeDemoVisuals, pexelsSquare } from '@/utils/demoProductVisuals'
 
 /* 导入生成的本地图片 */
 import bannerNewArrivals from '@/assets/images/banner_new_arrivals.png'
@@ -429,7 +428,7 @@ function mapHomeProduct(p: any): Product {
   const salesNum = Number(p.sales) || 0
   return {
     id: String(p.id),
-    image: p.mainImage || pexelsSquare(1092644),
+    image: p.mainImage,
     title: p.title,
     price: `￥${p.price}`,
     originalPrice: `￥${p.originalPrice ?? p.price}`,
@@ -439,23 +438,7 @@ function mapHomeProduct(p: any): Product {
   }
 }
 
-/** 接口全空时的占位，避免首页「为你推荐」白板 */
-const DEMO_HOME_PRODUCTS: Product[] = homeDemoVisuals.map((row, i) => ({
-  id: `demo-home-${i + 1}`,
-  image: row.image,
-  title: row.title,
-  price: row.price,
-  originalPrice: row.originalPrice,
-  sales: row.sales,
-  tag: row.tag,
-  isFavorite: false,
-}))
-
 const goProduct = (id: string) => {
-  if (String(id).startsWith('demo-')) {
-    ElMessage.warning('示例商品暂无详情页')
-    return
-  }
   router.push(`/product/${id}`)
 }
 
@@ -500,17 +483,11 @@ const loadData = async () => {
     if (items.length > 0) {
       products.value = items.map(mapHomeProduct)
     } else {
-      products.value = [...DEMO_HOME_PRODUCTS]
+      products.value = []
     }
   } catch (error) {
     console.error('加载数据失败:', error)
-    try {
-      const rec = await getRecommendProducts(20)
-      const arr = Array.isArray(rec) ? rec : []
-      products.value = arr.length ? arr.map(mapHomeProduct) : [...DEMO_HOME_PRODUCTS]
-    } catch {
-      products.value = [...DEMO_HOME_PRODUCTS]
-    }
+    products.value = []
   } finally {
     loading.value = false
   }
@@ -532,10 +509,6 @@ const hideSearchSuggestions = () => {
 }
 
 const toggleFavorite = async (productId: string) => {
-  if (String(productId).startsWith('demo-')) {
-    ElMessage.warning('示例商品无法收藏')
-    return
-  }
   const product = products.value.find(p => p.id === productId)
   if (!product) return
   try {
@@ -554,10 +527,6 @@ const toggleFavorite = async (productId: string) => {
 }
 
 const addToCart = async (productId: string) => {
-  if (String(productId).startsWith('demo-')) {
-    ElMessage.warning('示例商品无法加购')
-    return
-  }
   try {
     await addToCartAPI(productId, 1)
     ElMessage.success('已加入购物车')

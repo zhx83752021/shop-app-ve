@@ -1,5 +1,5 @@
 <template>
-  <div class="page max-w-md mx-auto relative">
+  <div class="w-full page max-w-md mx-auto relative">
     <!-- 顶部导航栏 -->
     <div class="header">
       <button @click="$router.back()" class="back-btn">
@@ -308,13 +308,15 @@ onMounted(() => {
 .header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 50;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
   background: white;
   border-bottom: 1px solid #f0f0f0;
+  max-width: 448px;
+  margin: 0 auto;
 }
 
 .back-btn {
@@ -426,8 +428,10 @@ onMounted(() => {
   max-width: 448px;
   margin: 0 auto;
   padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   background: white;
   border-top: 1px solid #f0f0f0;
+  z-index: 50;
 }
 
 .add-btn {

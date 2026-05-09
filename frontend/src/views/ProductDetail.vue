@@ -1,5 +1,5 @@
 <template>
-  <div class="detail-page max-w-md mx-auto relative bg-surface min-h-screen pb-24">
+  <div class="w-full detail-page max-w-md mx-auto relative bg-surface min-h-screen pb-24">
     <!-- ===== 顶部返回栏 ===== -->
     <div
       class="sticky top-0 z-20 transition-all duration-300"
@@ -261,6 +261,7 @@ const product = ref<any>({
 
 const isFavorite = ref(false)
 const loading = ref(false)
+const hasError = ref(false)
 
 /* 统一价格格式化，消除模板层 replace 调用 */
 const formatPrice = (price: any): string => {
@@ -295,7 +296,10 @@ const loadProduct = async () => {
     product.value = data
     await checkFavorite(id)
   } catch (error) {
-    ElMessage.error('加载失败')
+    hasError.value = true
+    product.value.title = '商品不存在或已下架'
+    product.value.description = '您查看的商品可能已经被移除'
+    ElMessage.error('商品不存在或已下架')
   } finally {
     loading.value = false
   }

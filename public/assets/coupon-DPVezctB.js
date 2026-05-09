@@ -1,0 +1,1 @@
+import{h as t}from"./http-C9NiUIT3.js";const a=(o=1,s=20)=>t.get("/coupons",{params:{page:o,pageSize:s}}),p=o=>t.post(`/coupons/${o}/claim`),e=p,c=(o,s=1,n=20)=>t.get("/coupons/my",{params:{status:o,page:s,pageSize:n}});export{a,c as g,e as r};

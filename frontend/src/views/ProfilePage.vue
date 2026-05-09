@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full overflow-y-auto overflow-x-hidden bg-surface">
+  <div class="relative bg-surface min-h-full">
     <!-- 用户信息卡片（使用生成的黑金质感背景图） -->
     <div 
       class="relative noise-bg px-4 pt-12 pb-10 overflow-hidden bg-cover bg-center"
@@ -167,7 +167,7 @@ const loadOrderStats = async () => {
     const statuses = ['PENDING_PAYMENT', 'PENDING_SHIP', 'PENDING_RECEIVE', 'PENDING_REVIEW', 'REFUNDING']
     for (const status of statuses) {
       const data = await getOrders(status, 1, 1)
-      orderCounts.value[status as keyof typeof orderCounts.value] = data.pagination.total
+      orderCounts.value[status as keyof typeof orderCounts.value] = data?.total || data?.pagination?.total || 0
     }
   } catch (error) {
     console.error('加载订单统计失败:', error)
@@ -177,7 +177,7 @@ const loadOrderStats = async () => {
 const loadCouponCount = async () => {
   try {
     const data = await getMyCoupons('UNUSED', 1, 1)
-    couponCount.value = data.pagination.total
+    couponCount.value = data?.total || data?.pagination?.total || 0
   } catch (error) {
     console.error('加载优惠券数量失败:', error)
   }
@@ -186,7 +186,7 @@ const loadCouponCount = async () => {
 const loadFavoriteCount = async () => {
   try {
     const data = await getFavorites(1, 1)
-    favoriteCount.value = data.pagination.total
+    favoriteCount.value = data?.total || data?.pagination?.total || 0
   } catch (error) {
     console.error('加载收藏数量失败:', error)
   }

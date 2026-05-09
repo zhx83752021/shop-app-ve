@@ -1,5 +1,5 @@
 <template>
-  <div class="page max-w-md mx-auto relative min-h-screen bg-[#FDF8F5]">
+  <div class="w-full page max-w-md mx-auto relative min-h-screen bg-[#FDF8F5]">
     <!-- 顶部视觉区 -->
     <div class="relative h-64 overflow-hidden">
       <img 
@@ -128,7 +128,7 @@
     <!-- 升级提示：与主栏同宽，不占满整屏 -->
     <div class="fixed bottom-0 inset-x-0 z-30 flex justify-center pointer-events-none">
       <div
-        class="w-full max-w-md pointer-events-auto px-5 pt-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-[#FDF8F5] via-[#FDF8F5]/92 to-transparent"
+        class="w-full max-w-md pointer-events-auto px-5 pt-10 pb-[max(1.25rem,env(safe-area-inset-bottom, 0px))] bg-gradient-to-t from-[#FDF8F5] via-[#FDF8F5]/92 to-transparent"
       >
         <button
           type="button"

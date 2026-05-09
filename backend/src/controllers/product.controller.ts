@@ -29,7 +29,13 @@ export class ProductController {
       const userId = req.userId // 从认证中间件获取
       const product = await ProductService.getProductById(id, userId)
       return success(res, product)
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === '商品不存在或已下架') {
+        return res.status(404).json({
+          code: 404,
+          message: error.message
+        });
+      }
       next(error)
     }
   }

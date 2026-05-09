@@ -1,24 +1,12 @@
 <template>
   <div
-    class="brand-showroom mx-4 mb-3 rounded-3xl overflow-hidden bg-white shadow-[0_4px_24px_rgba(26,26,46,0.04)]"
+    class="brand-showroom mb-3 bg-white"
   >
     <div class="px-5 pt-6 pb-2">
       <div class="flex items-baseline justify-between mb-5">
         <h2 class="font-display font-bold text-xl text-[#1A1A2E] tracking-tight flex items-center gap-2">
           品牌馆
-          <span
-            class="text-[10px] font-normal uppercase tracking-[0.2em] text-[#5c5c6e] bg-black/[0.05] px-2 py-0.5 rounded-full"
-            >Showroom</span
-          >
         </h2>
-        <button
-          type="button"
-          class="text-xs text-[#6b6b7b] hover:text-[#1A1A2E] transition-colors flex items-center gap-1 group"
-          @click="emit('clearAll')"
-        >
-          全部品牌
-          <ChevronRight class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-        </button>
       </div>
 
       <div class="grid grid-cols-4 gap-x-3 gap-y-5">

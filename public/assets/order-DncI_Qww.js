@@ -1,0 +1,1 @@
+import{h as s}from"./http-C9NiUIT3.js";const a=r=>s.post("/orders",r),n=(r,e=1,t=10)=>s.get("/orders",{params:{status:r,page:e,pageSize:t}}),c=(r,e="ALIPAY")=>s.post(`/orders/${r}/pay`,{paymentMethod:e}),p=(r,e)=>s.post(`/orders/${r}/cancel`,{reason:e}),d=r=>s.post(`/orders/${r}/confirm`);export{p as a,a as b,d as c,n as g,c as p};

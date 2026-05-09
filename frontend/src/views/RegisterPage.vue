@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-primary/10 to-purple-50 flex items-center justify-center p-4 max-w-md mx-auto relative">
+  <div class="w-full min-h-screen bg-gradient-to-br from-primary/10 to-purple-50 flex items-center justify-center p-4 max-w-md mx-auto relative">
     <div class="w-full max-w-md">
       <!-- Logo和标题 -->
       <div class="text-center mb-8">

@@ -1,7 +1,7 @@
 <template>
-  <div class="page max-w-md mx-auto bg-surface min-h-screen pb-10">
+  <div class="w-full page max-w-md mx-auto bg-surface min-h-screen pb-10">
     <!-- 顶部导航栏 -->
-    <div class="sticky top-0 z-20 glass border-b border-primary-100 px-4 py-3">
+    <div class="sticky top-0 z-50 glass border-b border-primary-100 px-4 py-3 max-w-md mx-auto">
       <div class="flex items-center gap-3">
         <button @click="$router.back()" class="w-9 h-9 rounded-full bg-surface-muted flex items-center justify-center press-effect">
           <ArrowLeft class="w-5 h-5 text-ink" />
@@ -11,7 +11,7 @@
     </div>
 
     <!-- 状态筛选 -->
-    <div class="bg-white sticky top-[53px] z-10 border-b border-surface-muted">
+    <div class="bg-white sticky top-[53px] z-40 border-b border-surface-muted max-w-md mx-auto">
       <div class="flex overflow-x-auto no-scrollbar px-2">
         <button
           v-for="tab in tabs"

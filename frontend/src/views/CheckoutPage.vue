@@ -1,7 +1,7 @@
 <template>
-  <div class="page max-w-md mx-auto bg-surface min-h-screen pb-24">
+  <div class="w-full page max-w-md mx-auto bg-surface min-h-screen pb-24">
     <!-- 顶部导航 -->
-    <div class="sticky top-0 z-20 glass border-b border-primary-100 px-4 py-3 flex items-center gap-3">
+    <div class="sticky top-0 z-50 glass border-b border-primary-100 px-4 py-3 flex items-center gap-3 max-w-md mx-auto">
       <button @click="$router.back()" class="w-9 h-9 rounded-full bg-surface-muted flex items-center justify-center press-effect">
         <ArrowLeft class="w-5 h-5 text-ink" />
       </button>
@@ -93,7 +93,7 @@
     </div>
 
     <!-- 底部结算栏 -->
-    <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass border-t border-primary-100 px-4 py-3 flex items-center justify-between z-30">
+    <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass border-t border-primary-100 px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] flex items-center justify-between z-30">
       <div class="flex flex-col">
         <span class="text-xs text-ink-muted">合计:</span>
         <span class="text-xl font-display font-bold text-primary">¥{{ totalAmount.toFixed(2) }}</span>

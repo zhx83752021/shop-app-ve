@@ -1,0 +1,1 @@
+import{h as e}from"./http-C9NiUIT3.js";const t=()=>e.get("/user/addresses"),a=s=>e.post("/user/addresses",s),u=(s,r)=>e.put(`/user/addresses/${s}`,r),n=s=>e.delete(`/user/addresses/${s}`),o=s=>e.put(`/user/addresses/${s}/default`);export{a,n as d,t as g,o as s,u};

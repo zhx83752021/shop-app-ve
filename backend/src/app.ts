@@ -38,7 +38,7 @@ if (config.env === 'development') {
 // 请求频率限制
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15分钟
-  max: 100, // 限制100次请求
+  max: 10000, // 放宽限制以支持并发请求
   message: '请求过于频繁，请稍后再试'
 })
 app.use('/api/', limiter)

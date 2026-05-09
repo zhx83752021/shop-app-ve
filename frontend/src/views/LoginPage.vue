@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen relative overflow-hidden flex flex-col max-w-md mx-auto">
+  <div class="w-full min-h-screen relative overflow-hidden flex flex-col max-w-md mx-auto">
     <!-- 顶部装饰背景 -->
     <div class="relative h-64 flex-shrink-0 overflow-hidden">
       <!-- 背景图 -->
@@ -148,7 +148,7 @@ import loginBg from '@/assets/images/login_hero_bg.png'
 
 const router = useRouter()
 
-const loginForm = ref({ phone: '', password: '' })
+const loginForm = ref({ phone: '13800138000', password: '123456' })
 const errors = ref({ phone: '', password: '' })
 const showPassword = ref(false)
 const rememberMe = ref(false)

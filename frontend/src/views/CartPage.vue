@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full overflow-y-auto overflow-x-hidden bg-surface">
+  <div class="relative bg-surface min-h-full">
     <!-- 头部（统一 glass 效果） -->
     <div class="sticky top-0 z-10 glass border-b border-primary-100 px-4 py-3 noise-bg">
       <h1 class="text-lg font-display font-bold text-ink">
@@ -30,13 +30,10 @@
       v-if="cartItems.length === 0 && !loading"
       class="flex flex-col items-center justify-center py-24 px-8"
     >
-      <img
-        src="https://images.unsplash.com/photo-1586769852836-bc069f19e1be?w=300&h=220&fit=crop&auto=format"
-        alt="购物车是空的"
-        loading="lazy"
-        decoding="async"
-        class="w-56 mb-6 rounded-2xl opacity-75 object-cover"
-      />
+      <div class="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mb-6 relative">
+        <div class="absolute inset-0 border border-primary/10 rounded-full animate-ping opacity-20"></div>
+        <ShoppingBag class="w-10 h-10 text-primary/40" />
+      </div>
       <h3 class="font-display font-bold text-ink text-lg mb-2">还没有商品</h3>
       <p class="text-ink-muted text-sm mb-6 text-center leading-relaxed">
         快去首页挑选你心仪的好物吧

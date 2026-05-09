@@ -1,0 +1,1 @@
+import{h as s}from"./http-C9NiUIT3.js";const a=t=>s.get("/products",{params:t}),o=t=>s.get(`/products/${t}`),c=t=>s.get("/products/search/suggest",{params:{keyword:t}}),g=(t=1,r=20)=>s.get("/products/flash-sale",{params:{page:t,pageSize:r}});export{c as a,o as b,g as c,a as g};

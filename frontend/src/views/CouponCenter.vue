@@ -1,5 +1,5 @@
 <template>
-  <div class="page max-w-md mx-auto relative">
+  <div class="w-full page max-w-md mx-auto relative">
     <div class="header">
       <button @click="$router.back()" class="back-btn">
         <ArrowLeft class="w-6 h-6" />
@@ -176,8 +176,10 @@ onMounted(() => {
   color: #1A1A2E;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 50;
   border-bottom: 1px solid #f0f0f0;
+  max-width: 448px;
+  margin: 0 auto;
 }
 
 .back-btn {
@@ -197,12 +199,15 @@ onMounted(() => {
   display: flex;
   background: white;
   padding: 12px 16px;
-  gap: 16px;
-  overflow-x: auto;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .tab {
-  padding: 6px 16px;
+  flex: 1;
+  padding: 6px 0;
+  text-align: center;
+  font-size: 14px;
   border-radius: 16px;
   background: none;
   border: 1px solid #ddd;

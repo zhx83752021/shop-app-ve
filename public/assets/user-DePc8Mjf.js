@@ -1,0 +1,1 @@
+import{h as r}from"./http-C9NiUIT3.js";const o=()=>r.get("/user/profile"),a=(e=1,t=20)=>r.get("/user/favorites",{params:{page:e,pageSize:t}}),i=e=>r.post("/user/favorites",{productId:e}),u=e=>r.delete(`/user/favorites/${e}`),c=e=>r.get(`/user/favorites/check/${e}`);export{i as a,a as b,c,o as g,u as r};

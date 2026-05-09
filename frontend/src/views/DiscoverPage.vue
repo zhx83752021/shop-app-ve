@@ -1,14 +1,14 @@
 <template>
-  <div class="flex flex-col h-full bg-white">
+  <div class="flex flex-col min-h-full bg-white relative">
     <!-- 顶部Tab栏 -->
     <div class="sticky top-0 z-10 bg-white border-b border-gray-200">
-      <div class="flex items-center gap-6 px-4 py-3 overflow-x-auto scrollbar-hide">
+      <div class="flex items-center justify-between px-4 py-3 w-full">
         <button
           v-for="(tab, index) in tabs"
           :key="index"
           @click="handleTabChange(index)"
           :class="[
-            'flex-shrink-0 pb-1 transition-colors cursor-pointer',
+            'pb-1 transition-colors cursor-pointer text-[15px] font-medium whitespace-nowrap',
             currentTab === index ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'
           ]"
         >
@@ -68,7 +68,7 @@
               class="absolute bottom-2 left-2 bg-white/90 backdrop-blur px-1.5 py-0.5 rounded-lg flex items-center gap-1 shadow-sm"
             >
               <ShoppingBag class="w-3 h-3 text-primary" />
-              <span class="text-[10px] font-bold text-ink">🛒 同款</span>
+              <span class="text-[10px] font-bold text-ink">同款</span>
             </div>
           </div>
 
@@ -160,6 +160,82 @@ const handleTabChange = (index: number) => {
   loadPosts()
 }
 
+const DEMO_DISCOVER_POSTS: PostData[] = [
+  {
+    id: 'demo-post-1',
+    userId: 'demo-user-1',
+    type: 'IMAGE',
+    image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop',
+    username: '穿搭小达人',
+    title: '春季出街必备，这双跑鞋太好穿了！',
+    content: '今天去公园散步，穿了这双新买的跑鞋，真的超级舒服...',
+    likes: 1250,
+    likesDisplay: '1250',
+    comments: 88,
+    commentsDisplay: '88',
+    hasProduct: true,
+    isLiked: false,
+    isFollowing: false,
+    products: [{ id: 'demo-prod-1' }]
+  },
+  {
+    id: 'demo-post-2',
+    userId: 'demo-user-2',
+    type: 'IMAGE',
+    image: 'https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop',
+    username: '护肤日记',
+    title: '干皮救星！最近大爱的面霜分享',
+    content: '换季皮肤特别干，用了这款面霜之后真的改善了很多...',
+    likes: 3400,
+    likesDisplay: '3400',
+    comments: 210,
+    commentsDisplay: '210',
+    hasProduct: true,
+    isLiked: false,
+    isFollowing: false,
+    products: [{ id: 'demo-prod-2' }]
+  },
+  {
+    id: 'demo-post-3',
+    userId: 'demo-user-3',
+    type: 'VIDEO',
+    image: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop',
+    username: '数码宅',
+    title: '沉浸式桌面开箱，氛围感拉满',
+    content: '新买的键盘垫和鼠标，终于把桌面布置成了自己喜欢的样子...',
+    likes: 890,
+    likesDisplay: '890',
+    comments: 45,
+    commentsDisplay: '45',
+    hasProduct: false,
+    duration: '01:20',
+    isLiked: false,
+    isFollowing: false,
+    products: []
+  },
+  {
+    id: 'demo-post-4',
+    userId: 'demo-user-4',
+    type: 'IMAGE',
+    image: 'https://images.pexels.com/photos/3825540/pexels-photo-3825540.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop',
+    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop',
+    username: '家居美学',
+    title: '提升幸福感的家居好物',
+    content: '生活需要仪式感，这些小物件让家里变得更温馨了。',
+    likes: 5600,
+    likesDisplay: '5.6万',
+    comments: 320,
+    commentsDisplay: '320',
+    hasProduct: true,
+    isLiked: false,
+    isFollowing: false,
+    products: [{ id: 'demo-prod-4' }]
+  }
+]
+
 // 加载帖子数据
 const loadPosts = async () => {
   try {
@@ -168,21 +244,24 @@ const loadPosts = async () => {
     const data = await getPosts({ page: 1, pageSize: 20, tab: currentTabName })
     console.log('获取帖子数据成功:', data)
 
-    if (!data || !data.items || data.items.length === 0) {
-      posts.value = []
-      return
-    }
+    let itemsToProcess = []
+    let isMock = false
 
-    let itemsToProcess = data.items
+    if (!data || !data.items || data.items.length === 0) {
+      itemsToProcess = [...DEMO_DISCOVER_POSTS]
+      isMock = true
+    } else {
+      itemsToProcess = data.items
+    }
     
     // 前端直接进行 Tab 过滤（避免因后端未重启导致参数被忽略）
     if (currentTabName && currentTabName !== '推荐' && currentTabName !== '关注') {
       const keywordMap: Record<string, string[]> = {
-        '时尚': ['穿搭', '裙', '妆', '护肤', '时尚', '出游'],
+        '时尚': ['穿搭', '裙', '妆', '护肤', '时尚', '出游', '面霜'],
         '美食': ['探店', '咖啡', '食', '餐', '美食'],
         '旅行': ['旅行', '出游', '游'],
         '数码': ['桌面', '键盘', '耳机', '数码', '体验', '测评'],
-        '家居': ['卧室', '客厅', '家居', '四件套', '绿植']
+        '家居': ['卧室', '客厅', '家居', '四件套', '绿植', '好物']
       }
       const keywords = keywordMap[currentTabName] || []
       itemsToProcess = itemsToProcess.filter((p: any) => 
@@ -190,31 +269,49 @@ const loadPosts = async () => {
       )
     }
 
-    posts.value = itemsToProcess.map((post: any) => ({
-      id: post.id,
-      userId: post.userId,
-      type: post.type,
-      image: post.images?.[0] || post.image || 'https://picsum.photos/800/800',
-      avatar: post.user?.avatar || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop',
-      username: post.user?.nickname || post.username || '匿名用户',
-      title: post.title,
-      content: post.content,
-      likes: post.likeCount || 0,
-      likesDisplay: formatCount(post.likeCount || 0),
-      comments: post.commentCount || 0,
-      commentsDisplay: String(post.commentCount || 0),
-      hasProduct: post.hasProduct || false,
-      duration: post.duration,
-      isLiked: post.isLiked || false,
-      isFollowing: post.isFollowing || false,
-      products: post.products || []
-    }))
+    if (isMock) {
+      posts.value = itemsToProcess
+    } else {
+      posts.value = itemsToProcess.map((post: any) => ({
+        id: post.id,
+        userId: post.userId,
+        type: post.type,
+        image: post.images?.[0] || post.image || 'https://picsum.photos/800/800',
+        avatar: post.user?.avatar || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop',
+        username: post.user?.nickname || post.username || '匿名用户',
+        title: post.title,
+        content: post.content,
+        likes: post.likeCount || 0,
+        likesDisplay: formatCount(post.likeCount || 0),
+        comments: post.commentCount || 0,
+        commentsDisplay: String(post.commentCount || 0),
+        hasProduct: post.hasProduct || false,
+        duration: post.duration,
+        isLiked: post.isLiked || false,
+        isFollowing: post.isFollowing || false,
+        products: post.products || []
+      }))
+    }
   } catch (error: any) {
     console.error('加载帖子失败 - 详细错误:', error)
-    console.error('错误响应:', error?.response)
-    console.error('错误状态码:', error?.response?.status)
-    console.error('错误消息:', error?.response?.data)
-    ElMessage.error(error?.response?.data?.message || error?.message || '加载失败，请稍后重试')
+    
+    // 接口失败时也兜底展示 mock 数据
+    let itemsToProcess = [...DEMO_DISCOVER_POSTS]
+    const currentTabName = tabs[currentTab.value]
+    if (currentTabName && currentTabName !== '推荐' && currentTabName !== '关注') {
+      const keywordMap: Record<string, string[]> = {
+        '时尚': ['穿搭', '裙', '妆', '护肤', '时尚', '出游', '面霜'],
+        '美食': ['探店', '咖啡', '食', '餐', '美食'],
+        '旅行': ['旅行', '出游', '游'],
+        '数码': ['桌面', '键盘', '耳机', '数码', '体验', '测评'],
+        '家居': ['卧室', '客厅', '家居', '四件套', '绿植', '好物']
+      }
+      const keywords = keywordMap[currentTabName] || []
+      itemsToProcess = itemsToProcess.filter((p: any) => 
+        keywords.some(kw => p.title?.includes(kw) || p.content?.includes(kw))
+      )
+    }
+    posts.value = itemsToProcess
   } finally {
     loading.value = false
   }
